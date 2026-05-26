@@ -37,6 +37,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
           overflow: 'hidden',
           fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+          boxSizing: 'border-box',
         }}
       >
         {/* Background Image — using <img> for html2canvas compatibility */}
@@ -73,6 +74,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             zIndex: 2,
             width: '100%',
             height: '100%',
+            boxSizing: 'border-box',
             padding: 30,
             display: 'flex',
             gap: 30,
@@ -291,8 +293,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     backgroundColor: '#ffffff',
                     padding: 4,
                     borderRadius: 6,
-                    width: 72,
-                    height: 72,
+                    width: 54,
+                    height: 54,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -303,12 +305,12 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     <img
                       src={qrDataUrl}
                       alt="QR Code"
-                      width={64}
-                      height={64}
+                      width={46}
+                      height={46}
                       style={{ display: 'block' }}
                     />
                   ) : (
-                    <div style={{ width: 64, height: 64, backgroundColor: '#eee' }} />
+                    <div style={{ width: 46, height: 46, backgroundColor: '#eee' }} />
                   )}
                 </div>
               </div>

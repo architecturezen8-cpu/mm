@@ -37,6 +37,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
           boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
           overflow: 'hidden',
           fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+          boxSizing: 'border-box',
         }}
       >
         {/* Background Image — using <img> for html2canvas compatibility */}
@@ -73,6 +74,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             zIndex: 2,
             width: '100%',
             height: '100%',
+            boxSizing: 'border-box',
             padding: '30px 25px 20px 25px',
             display: 'flex',
             flexDirection: 'column',
@@ -334,8 +336,8 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   backgroundColor: '#ffffff',
                   padding: 5,
                   borderRadius: 8,
-                  width: 72,
-                  height: 72,
+                  width: 56,
+                  height: 56,
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -346,12 +348,12 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   <img
                     src={qrDataUrl}
                     alt="QR Code"
-                    width={62}
-                    height={62}
+                    width={46}
+                    height={46}
                     style={{ display: 'block' }}
                   />
                 ) : (
-                  <div style={{ width: 62, height: 62, backgroundColor: '#eee' }} />
+                  <div style={{ width: 46, height: 46, backgroundColor: '#eee' }} />
                 )}
               </div>
             </div>
