@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import QRCode from 'qrcode';
 import { motion } from 'framer-motion';
 import {
@@ -189,7 +189,7 @@ export default function FanCardGenerator() {
     setShowPhotoControls(false);
   }, []);
 
-  /* ── Download handler — capture the HIDDEN off-screen card ── */
+  /* ── Download handler — capture the HIDDEN off-screen card with html-to-image ── */
   const handleDownload = useCallback(async () => {
     const renderRef = cardData.orientation === 'portrait' ? renderPortraitRef : renderLandscapeRef;
     const el = renderRef.current;
@@ -224,32 +224,32 @@ export default function FanCardGenerator() {
       const width = cardData.orientation === 'portrait' ? 440 : 720;
       const height = cardData.orientation === 'portrait' ? 690 : 440;
 
-      // Capture the hidden off-screen card (no CSS transform parent!)
-      const canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: null,
-        logging: false,
+      // Capture the hidden off-screen card with html-to-image.
+      // This preserves CSS layout more accurately than html2canvas for graphics-heavy cards.
+      const dataUrl = await toPng(el, {
+        pixelRatio: 2,
+        cacheBust: true,
         width,
         height,
-        windowWidth: width,
-        windowHeight: height,
-        scrollX: 0,
-        scrollY: 0,
+        backgroundColor: undefined,
+        style: {
+          width: `${width}px`,
+          height: `${height}px`,
+          transform: 'none',
+        },
       });
 
       const link = document.createElement('a');
       const safeName = (cardData.name || 'fan').replace(/\s+/g, '-').toLowerCase();
       link.download = `fancard-${safeName}-${cardData.orientation}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
       link.click();
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (err) {
       console.error('Download failed:', err);
     } finally {
-      // Always restore preview/render DOM after the html2canvas capture attempt.
+      // Always restore preview/render DOM after the html-to-image capture attempt.
       imgs.forEach((img, i) => {
         if (origSrcs[i]) img.src = origSrcs[i];
       });
