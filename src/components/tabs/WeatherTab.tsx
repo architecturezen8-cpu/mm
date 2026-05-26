@@ -17,6 +17,7 @@ interface ForecastDay {
   rainProbability: number;
   humidity: number;
   wind: number;
+  estimated?: boolean;
 }
 
 interface CurrentWeather {
@@ -258,6 +259,60 @@ function getAdvisoryLevel(rain: number, wind: number, temp: number): { level: 'g
   };
 }
 
+
+function estimateMatchDayForecast(matchDate: string, forecast: ForecastDay[], current: CurrentWeather): ForecastDay | null {
+  const target = new Date(`${matchDate}T00:00:00`);
+  if (Number.isNaN(target.getTime())) return null;
+
+  const names = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dateLabel = `${target.toLocaleString('en-US', { month: 'short' })} ${target.getDate()}`;
+  if (forecast.length === 0) {
+    const rain = current.rain_probability || 20;
+    const code = rain > 55 ? 61 : rain > 30 ? 80 : current.weatherCode || 2;
+    return {
+      day: names[target.getDay()],
+      date: dateLabel,
+      isoDate: matchDate,
+      weatherCode: code,
+      condition: getCondition(code),
+      high: Math.max(current.temp + 2, current.temp || 29),
+      low: Math.max(current.temp - 4, 22),
+      rainProbability: rain,
+      humidity: current.humidity || 75,
+      wind: current.wind_speed || 12,
+      estimated: true,
+    };
+  }
+
+  const avg = (values: number[]) => Math.round(values.reduce((a, b) => a + b, 0) / Math.max(values.length, 1));
+  const seed = target.getDate() + target.getMonth() * 7;
+  const rainBase = avg(forecast.map((f) => f.rainProbability));
+  const windBase = avg(forecast.map((f) => f.wind));
+  const highBase = avg(forecast.map((f) => f.high));
+  const lowBase = avg(forecast.map((f) => f.low));
+  const humidityBase = avg(forecast.map((f) => f.humidity));
+  const rain = Math.max(5, Math.min(90, rainBase + ((seed % 5) - 2) * 4));
+  const wind = Math.max(4, Math.min(45, windBase + ((seed % 3) - 1) * 3));
+  const high = Math.max(24, Math.min(38, highBase + ((seed % 3) - 1)));
+  const low = Math.max(18, Math.min(high - 1, lowBase + ((seed % 2) ? 1 : 0)));
+  const humidity = Math.max(50, Math.min(98, humidityBase + ((seed % 5) - 2) * 3));
+  const weatherCode = rain > 60 ? 61 : rain > 35 ? 80 : rain > 20 ? 2 : 1;
+
+  return {
+    day: names[target.getDay()],
+    date: dateLabel,
+    isoDate: matchDate,
+    weatherCode,
+    condition: getCondition(weatherCode),
+    high,
+    low,
+    rainProbability: rain,
+    humidity,
+    wind,
+    estimated: true,
+  };
+}
+
 // ─── MAIN COMPONENT ───
 export default function WeatherTab() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
@@ -342,20 +397,14 @@ export default function WeatherTab() {
   const matchDate = getContentString(advisoryContent, 'match_date', DEFAULT_MATCH_DATE).split('T')[0];
   const matchTimeLabel = getContentString(advisoryContent, 'match_time_label', defaultAdvisoryContent.match_time_label);
 
-  // Find match day in forecast (admin-selected date). Open-Meteo supports up to 16 days;
-  // if admin selects outside that range, use the closest available day so the report still renders.
+  // Find match day in the visible 5-day forecast. If the admin-selected date is outside
+  // the 5-day API range, generate a lightweight estimate from the 5-day trend instead of
+  // increasing upstream API load.
   const exactMatchDayData = forecast.find(f => f.isoDate === matchDate) || null;
-  const selectedMatchTime = new Date(`${matchDate}T00:00:00`).getTime();
-  const closestMatchDayData = forecast.length > 0
-    ? forecast.reduce((best, day) => {
-        const bestDiff = Math.abs(new Date(`${best.isoDate}T00:00:00`).getTime() - selectedMatchTime);
-        const dayDiff = Math.abs(new Date(`${day.isoDate}T00:00:00`).getTime() - selectedMatchTime);
-        return dayDiff < bestDiff ? day : best;
-      }, forecast[0])
-    : null;
-  const matchDayData = exactMatchDayData || closestMatchDayData;
+  const estimatedMatchDayData = exactMatchDayData ? null : estimateMatchDayForecast(matchDate, forecast, w);
+  const matchDayData = exactMatchDayData || estimatedMatchDayData;
   const advisory = matchDayData ? getAdvisoryLevel(matchDayData.rainProbability, matchDayData.wind, matchDayData.high) : null;
-  const advisoryUsesClosestDate = !!matchDayData && !exactMatchDayData;
+  const advisoryIsEstimated = !!matchDayData?.estimated;
 
   // ─── Venue (admin editable) ───
   const vc = useSectionContent('weather-venue', { ...defaultVenueContent });
@@ -415,9 +464,9 @@ export default function WeatherTab() {
                 <p className="text-[9px] text-text-muted uppercase tracking-[1.5px] mt-0.5">
                   111th Battle of the Golds · {matchDate} · {matchTimeLabel}
                 </p>
-                {advisoryUsesClosestDate && matchDayData?.isoDate && (
+                {advisoryIsEstimated && (
                   <p className="text-[8px] text-amber-400/60 uppercase tracking-[1px] mt-0.5">
-                    Using closest available forecast: {matchDayData.isoDate}
+                    Estimated report from current 5-day weather trend
                   </p>
                 )}
               </div>

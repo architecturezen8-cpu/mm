@@ -183,16 +183,16 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const updateCountdown = () => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
 
-      if (distance < 0) {
+      if (!Number.isFinite(targetDate.getTime()) || distance <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
 
-      // Count the target day too (inclusive), so selecting match day doesn't skip that date.
+      // Count from the exact admin-selected date/time, while still counting the match day.
       const inclusiveDays = Math.max(1, Math.ceil(distance / (1000 * 60 * 60 * 24)));
       setTimeLeft({
         days: inclusiveDays,
@@ -200,7 +200,9 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
       });
-    }, 1000);
+    };
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
 

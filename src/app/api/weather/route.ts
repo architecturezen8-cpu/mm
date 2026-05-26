@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { getEnv } from '@/lib/cf-env';
 
 const OPEN_METEO_URL = getEnv('NEXT_PUBLIC_OPEN_METEO_URL')
-  || 'https://api.open-meteo.com/v1/forecast?latitude=7.67&longitude=80.63&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,weather_code,wind_speed_10m,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max,wind_speed_10m_max&timezone=Asia/Colombo&forecast_days=16';
+  || 'https://api.open-meteo.com/v1/forecast?latitude=7.67&longitude=80.63&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,weather_code,wind_speed_10m,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max,wind_speed_10m_max&timezone=Asia/Colombo&forecast_days=5';
 
 // In-memory cache as backup (for when CDN cache misses)
 let cachedWeather: { data: unknown; timestamp: number } | null = null;
