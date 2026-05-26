@@ -271,24 +271,14 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               }}
             >
               {/* Thomians' Media Branding */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, userSelect: 'none', marginTop: 30 }}>
-                <div
-                  style={{
-                    color: '#ffffff',
-                    fontSize: 12.5,
-                    letterSpacing: 0.2,
-                    textTransform: 'uppercase' as const,
-                  }}
-                >
-                  <span style={{ fontWeight: 670 }}>THOMIANS&apos;</span>
-                  <em style={{ fontStyle: 'normal', fontWeight: 300, marginLeft: 4, opacity: 0.9 }}>MEDIA</em>
-                </div>
-                {/* Thomians' Media colour mark — SVG renders consistently in preview and download */}
-                <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
-                  <polygon points="0,0 6,0 10,12 4,12" fill="#1a3668" />
-                  <polygon points="7,0 13,0 17,12 11,12" fill="#4a7ebb" />
-                  <polygon points="14,0 20,0 22,12 18,12" fill="#f7b717" />
-                </svg>
+              <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', marginTop: 30 }}>
+                <img
+                  src="/fancard/thomians-media-wordmark.png"
+                  alt="Thomians' Media"
+                  width={180}
+                  height={15}
+                  style={{ display: 'block', width: 180, height: 'auto', objectFit: 'contain' }}
+                />
               </div>
 
               {/* QR Code */}
