@@ -175,8 +175,9 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 color: '#FFC300',
                 fontSize: 36,
                 fontWeight: 900,
-                lineHeight: 0.98,
+                lineHeight: 1.08,
                 letterSpacing: 3.6,
+                paddingBottom: 4,
                 textShadow: '0 5px 16px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 195, 0, 0.22)',
               }}
             >
@@ -186,7 +187,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               style={{
                 width: 118,
                 height: 2,
-                margin: '8px auto 0',
+                margin: '12px auto 0',
                 background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.95), transparent)',
               }}
             />
@@ -265,14 +266,19 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             {/* Cheers Text */}
             <div
               style={{
-                display: 'inline-block',
+                width: 305,
+                margin: '0 auto 10px',
+                padding: '6px 16px',
+                boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
                 color: '#ffffff',
                 fontSize: 20,
                 fontWeight: 800,
                 textTransform: 'uppercase' as const,
                 letterSpacing: 1.3,
-                marginBottom: 10,
-                padding: '6px 18px',
                 borderTop: '1px solid rgba(255,195,0,0.35)',
                 borderBottom: '1px solid rgba(255,195,0,0.35)',
                 background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',

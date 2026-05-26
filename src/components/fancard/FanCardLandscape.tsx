@@ -212,8 +212,9 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   color: '#FFC300',
                   fontSize: 35,
                   fontWeight: 900,
-                  lineHeight: 1,
+                  lineHeight: 1.08,
                   letterSpacing: 3,
+                  paddingBottom: 5,
                   textShadow: '0 4px 14px rgba(0, 0, 0, 0.75), 0 0 18px rgba(255, 195, 0, 0.2)',
                 }}
               >
@@ -223,7 +224,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 style={{
                   width: 118,
                   height: 2,
-                  marginTop: 8,
+                  marginTop: 12,
                   background: 'linear-gradient(90deg, rgba(255,195,0,0.95), rgba(255,195,0,0.08), transparent)',
                 }}
               />
@@ -236,13 +237,19 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               </div>
               <div
                 style={{
-                  display: 'inline-block',
+                  width: 250,
+                  minHeight: 34,
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
                   color: '#ffffff',
                   fontSize: 15,
                   fontWeight: 800,
                   textTransform: 'uppercase' as const,
                   letterSpacing: 1.2,
-                  lineHeight: 1.35,
+                  lineHeight: 1.25,
                   marginBottom: 13,
                   padding: '4px 12px',
                   borderLeft: '2px solid rgba(255,195,0,0.7)',
