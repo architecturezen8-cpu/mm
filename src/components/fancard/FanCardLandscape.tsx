@@ -77,7 +77,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             boxSizing: 'border-box',
             padding: 30,
             display: 'flex',
-            gap: 30,
+            gap: 24,
             alignItems: 'center',
           }}
         >
@@ -85,8 +85,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           <div>
             <div
               style={{
-                width: 280,
-                height: 280,
+                width: 292,
+                height: 300,
                 borderRadius: 24,
                 overflow: 'hidden',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -101,10 +101,10 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   alt="Fan Portrait"
                   style={{
                     position: 'absolute',
-                    left: 140 + data.photoOffsetX,
-                    top: 140 + data.photoOffsetY,
-                    width: 280,
-                    height: 280,
+                    left: 146 + data.photoOffsetX,
+                    top: 150 + data.photoOffsetY,
+                    width: 292,
+                    height: 300,
                     objectFit: 'cover',
                     transform: `translate(-50%, -50%) scale(${data.photoZoom})`,
                     transformOrigin: 'center center',
@@ -136,7 +136,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           <div
             style={{
               flex: 1,
-              height: 280,
+              height: 300,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -238,7 +238,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   width: 315,
-                  marginBottom: 13,
+                  marginBottom: 14,
                   boxSizing: 'border-box',
                   textAlign: 'center',
                   whiteSpace: 'nowrap' as const,
@@ -248,8 +248,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
                 <div
                   style={{
-                    height: 28,
-                    lineHeight: '28px',
+                    height: 34,
+                    lineHeight: '34px',
                     color: '#ffffff',
                     fontSize: 14,
                     fontWeight: 800,

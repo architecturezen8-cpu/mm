@@ -267,7 +267,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             <div
               style={{
                 width: 340,
-                margin: '0 auto 10px',
+                margin: '0 auto 12px',
                 boxSizing: 'border-box',
                 textAlign: 'center',
                 whiteSpace: 'nowrap' as const,
@@ -277,8 +277,8 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
               <div
                 style={{
-                  height: 30,
-                  lineHeight: '30px',
+                  height: 36,
+                  lineHeight: '36px',
                   color: '#ffffff',
                   fontSize: 18,
                   fontWeight: 800,
