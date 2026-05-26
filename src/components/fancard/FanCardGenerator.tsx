@@ -853,11 +853,15 @@ export default function FanCardGenerator() {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div className="rounded border border-lux-border overflow-hidden bg-lux-elevated">
-                            <div className="h-16 bg-cover bg-center" style={{ backgroundImage: `url(${cardData.photoUrl})` }} />
+                            <div className="h-20 flex items-center justify-center bg-black/20">
+                              <img src={cardData.photoUrl} alt="Before filter" className="max-w-full max-h-full object-contain" />
+                            </div>
                             <div className="text-[7px] text-center text-text-muted uppercase tracking-wider py-1">Before</div>
                           </div>
                           <div className="rounded border border-gold/30 overflow-hidden bg-lux-elevated">
-                            <div className="h-16 bg-cover bg-center" style={{ backgroundImage: `url(${cardData.photoUrl})`, filter: getPhotoFilter(cardData) }} />
+                            <div className="h-20 flex items-center justify-center bg-black/20">
+                              <img src={cardData.photoUrl} alt="After filter" className="max-w-full max-h-full object-contain" style={{ filter: getPhotoFilter(cardData) }} />
+                            </div>
                             <div className="text-[7px] text-center text-gold uppercase tracking-wider py-1">After</div>
                           </div>
                         </div>
@@ -997,7 +1001,7 @@ export default function FanCardGenerator() {
         <div className="order-1 lg:order-2">
           <div className="lg:sticky lg:top-24">
             <div className="text-text-muted/30 text-[8px] sm:text-[9px] uppercase tracking-[2px] mb-2 sm:mb-3 text-center">Live Preview</div>
-            <div className="flex items-start justify-center overflow-hidden rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
+            <div className="flex items-start justify-center overflow-visible rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
               <div
                 className="relative transition-all duration-500"
                 style={{

@@ -57,6 +57,23 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const hasUnmutedOnInteraction = useRef(false);
   const mountedRef = useRef(true);
 
+  const persistPlayback = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeSong) return;
+    try {
+      localStorage.setItem('music-playback', JSON.stringify({
+        songId: activeSong.songId,
+        version: activeSong.version,
+        time: audio.currentTime || 0,
+        muted: audio.muted,
+        paused: audio.paused,
+        savedAt: Date.now(),
+      }));
+    } catch {
+      // ignore
+    }
+  }, [activeSong]);
+
   /* ── Read muted preference from localStorage after mount ── */
   useEffect(() => {
     try {
@@ -137,6 +154,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!activeSong) {
       // No active song — destroy any existing audio
+      persistPlayback();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
@@ -162,8 +180,20 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       : '';
 
     if (currentSrc !== src) {
+      // eslint-disable-next-line react-hooks/immutability
       audio.src = src;
       audio.load();
+      try {
+        const saved = JSON.parse(localStorage.getItem('music-playback') || '{}');
+        if (saved.songId === activeSong.songId && saved.version === activeSong.version && typeof saved.time === 'number') {
+          const age = Date.now() - (saved.savedAt || 0);
+          if (age < 10 * 60 * 1000) {
+            audio.currentTime = Math.max(0, saved.time);
+          }
+        }
+      } catch {
+        // ignore restore failures
+      }
     }
 
     // Apply settings
@@ -224,18 +254,36 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     };
   }, [activeSong]);
 
+  /* ── Persist playback position so page navigation does not feel like a reset ── */
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !activeSong) return;
+    const onTimeUpdate = () => persistPlayback();
+    const onPageHide = () => persistPlayback();
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    window.addEventListener('pagehide', onPageHide);
+    document.addEventListener('visibilitychange', onPageHide);
+    return () => {
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      window.removeEventListener('pagehide', onPageHide);
+      document.removeEventListener('visibilitychange', onPageHide);
+      persistPlayback();
+    };
+  }, [activeSong, persistPlayback]);
+
   /* ── Cleanup on unmount ── */
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      persistPlayback();
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
         audioRef.current = null;
       }
     };
-  }, []);
+  }, [persistPlayback]);
 
   /* ── Toggle mute ── */
   const toggleMute = useCallback(() => {
