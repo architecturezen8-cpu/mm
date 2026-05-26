@@ -263,25 +263,22 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             >
               {hashtag}
             </div>
-            {/* Cheers Text — absolute-line layout keeps preview and html2canvas download identical */}
+            {/* Cheers Text — normal-flow line/text/line avoids download renderer alignment drift */}
             <div
               style={{
                 width: 340,
-                height: 32,
                 margin: '0 auto 10px',
-                position: 'relative',
                 boxSizing: 'border-box',
                 textAlign: 'center',
                 whiteSpace: 'nowrap' as const,
                 background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',
               }}
             >
-              <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
-              <span
+              <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
+              <div
                 style={{
-                  display: 'block',
-                  height: 32,
-                  lineHeight: '32px',
+                  height: 30,
+                  lineHeight: '30px',
                   color: '#ffffff',
                   fontSize: 18,
                   fontWeight: 800,
@@ -291,8 +288,8 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 }}
               >
                 {cheersText}
-              </span>
-              <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
+              </div>
+              <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
             </div>
             {/* School Info + Batch */}
             <div

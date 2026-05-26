@@ -238,21 +238,18 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   width: 315,
-                  height: 30,
                   marginBottom: 13,
-                  position: 'relative',
                   boxSizing: 'border-box',
                   textAlign: 'center',
                   whiteSpace: 'nowrap' as const,
                   background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',
                 }}
               >
-                <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
-                <span
+                <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
+                <div
                   style={{
-                    display: 'block',
-                    height: 30,
-                    lineHeight: '30px',
+                    height: 28,
+                    lineHeight: '28px',
                     color: '#ffffff',
                     fontSize: 14,
                     fontWeight: 800,
@@ -262,8 +259,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   }}
                 >
                   {cheersText}
-                </span>
-                <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
+                </div>
+                <div style={{ height: 1, background: 'rgba(255,195,0,0.45)' }} />
               </div>
               <div
                 style={{
