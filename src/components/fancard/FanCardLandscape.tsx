@@ -77,7 +77,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             boxSizing: 'border-box',
             padding: 30,
             display: 'flex',
-            gap: 24,
+            gap: 22,
             alignItems: 'center',
           }}
         >
@@ -85,8 +85,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           <div>
             <div
               style={{
-                width: 292,
-                height: 300,
+                width: 310,
+                height: 310,
                 borderRadius: 24,
                 overflow: 'hidden',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -101,10 +101,10 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   alt="Fan Portrait"
                   style={{
                     position: 'absolute',
-                    left: 146 + data.photoOffsetX,
-                    top: 150 + data.photoOffsetY,
-                    width: 292,
-                    height: 300,
+                    left: 155 + data.photoOffsetX,
+                    top: 155 + data.photoOffsetY,
+                    width: 310,
+                    height: 310,
                     objectFit: 'cover',
                     transform: `translate(-50%, -50%) scale(${data.photoZoom})`,
                     transformOrigin: 'center center',
@@ -136,7 +136,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           <div
             style={{
               flex: 1,
-              height: 300,
+              height: 310,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
@@ -190,15 +190,15 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               style={{
                 textAlign: 'left',
                 textTransform: 'uppercase' as const,
-                marginTop: 10,
-                marginBottom: 16,
+                marginTop: 8,
+                marginBottom: 14,
                 fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
               }}
             >
               <div
                 style={{
                   color: '#ffffff',
-                  fontSize: 22,
+                  fontSize: 21,
                   fontWeight: 900,
                   lineHeight: 1,
                   letterSpacing: 1.2,
@@ -210,7 +210,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   color: '#FFC300',
-                  fontSize: 35,
+                  fontSize: 34,
                   fontWeight: 900,
                   lineHeight: 1.08,
                   letterSpacing: 3,
@@ -237,7 +237,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               </div>
               <div
                 style={{
-                  width: 315,
+                  width: 305,
                   marginBottom: 14,
                   boxSizing: 'border-box',
                   textAlign: 'center',
