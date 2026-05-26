@@ -238,27 +238,32 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   width: 315,
+                  height: 30,
+                  marginBottom: 13,
+                  position: 'relative',
                   boxSizing: 'border-box',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   textAlign: 'center',
                   whiteSpace: 'nowrap' as const,
-                  color: '#ffffff',
-                  fontSize: 14,
-                  fontWeight: 800,
-                  textTransform: 'uppercase' as const,
-                  letterSpacing: 0.75,
-                  lineHeight: 1,
-                  marginBottom: 13,
-                  padding: '4px 12px 5px',
-                  borderTop: '1px solid rgba(255,195,0,0.45)',
-                  borderBottom: '1px solid rgba(255,195,0,0.45)',
                   background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',
-                  textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 0 12px rgba(255,195,0,0.2)',
                 }}
               >
-                {cheersText}
+                <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
+                <span
+                  style={{
+                    display: 'block',
+                    height: 30,
+                    lineHeight: '30px',
+                    color: '#ffffff',
+                    fontSize: 14,
+                    fontWeight: 800,
+                    textTransform: 'uppercase' as const,
+                    letterSpacing: 0.75,
+                    textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 0 12px rgba(255,195,0,0.2)',
+                  }}
+                >
+                  {cheersText}
+                </span>
+                <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 1, background: 'rgba(255,195,0,0.45)' }} />
               </div>
               <div
                 style={{
