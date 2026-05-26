@@ -192,10 +192,10 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
         return;
       }
 
-      // Count from the exact admin-selected date/time, while still counting the match day.
-      const inclusiveDays = Math.max(1, Math.ceil(distance / (1000 * 60 * 60 * 24)));
+      // Exact countdown from admin-selected date/time.
+      // Example: May 27 01:25 → May 28 09:00 = 1 day, 7 hours, 35 mins (not 2 days).
       setTimeLeft({
-        days: inclusiveDays,
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
