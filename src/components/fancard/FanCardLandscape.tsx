@@ -95,17 +95,15 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   alt="Fan Portrait"
                   style={{
                     position: 'absolute',
-                    inset: 0,
-                    width: `${data.photoZoom * 100}%`,
-                    height: `${data.photoZoom * 100}%`,
+                    left: 140 + data.photoOffsetX,
+                    top: 140 + data.photoOffsetY,
+                    width: 280,
+                    height: 280,
                     objectFit: 'cover',
-                    left: `${50 - data.photoZoom * 50 + data.photoOffsetX * (data.photoZoom - 1)}%`,
-                    top: `${50 - data.photoZoom * 50 + data.photoOffsetY * (data.photoZoom - 1)}%`,
-                    transform: 'translate(-50%, -50%)',
+                    transform: `translate(-50%, -50%) scale(${data.photoZoom})`,
                     transformOrigin: 'center center',
                     maxWidth: 'none',
-                    minWidth: '100%',
-                    minHeight: '100%',
+                    maxHeight: 'none',
                   }}
                 />
               ) : (
@@ -252,12 +250,12 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     <span style={{ fontWeight: 800 }}>THOMIANS&apos;</span>
                     <em style={{ fontStyle: 'normal', fontWeight: 300, marginLeft: 4, opacity: 0.9 }}>MEDIA</em>
                   </div>
-                  {/* 3 Slanting Stripes */}
-                  <div style={{ display: 'flex', width: 17, height: 10, transform: 'skewX(25deg)', overflow: 'hidden' }}>
-                    <div style={{ width: '33.33%', backgroundColor: '#1a3668' }} />
-                    <div style={{ width: '33.33%', backgroundColor: '#4a7ebb' }} />
-                    <div style={{ width: '33.33%', backgroundColor: '#f7b717' }} />
-                  </div>
+                  {/* Thomians' Media colour mark — SVG renders consistently in preview and download */}
+                  <svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
+                    <polygon points="0,0 6,0 10,12 4,12" fill="#1a3668" />
+                    <polygon points="7,0 13,0 17,12 11,12" fill="#4a7ebb" />
+                    <polygon points="14,0 20,0 22,12 18,12" fill="#f7b717" />
+                  </svg>
                 </div>
 
                 {/* QR Code */}

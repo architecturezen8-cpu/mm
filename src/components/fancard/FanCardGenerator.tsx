@@ -48,6 +48,31 @@ async function toDataUrl(src: string): Promise<string> {
   }
 }
 
+async function waitForImages(root: HTMLElement): Promise<void> {
+  const images = Array.from(root.querySelectorAll('img'));
+
+  await Promise.all(
+    images.map(async (img) => {
+      try {
+        if ('decode' in img) {
+          await img.decode();
+          return;
+        }
+      } catch {
+        // Fall back to load/error listeners below.
+      }
+
+      if (img.complete) return;
+
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+    })
+  );
+}
+
 /* ── Preview scale hook ── */
 function usePreviewScale(orientation: CardOrientation) {
   const [scale, setScale] = useState(0.5);
@@ -142,6 +167,9 @@ export default function FanCardGenerator() {
     const el = renderRef.current;
     if (!el) return;
 
+    let imgs: HTMLImageElement[] = [];
+    let origSrcs: string[] = [];
+
     setIsDownloading(true);
     try {
       // Pre-fetch background and logo as data URLs
@@ -151,8 +179,8 @@ export default function FanCardGenerator() {
       ]);
 
       // Swap images to data URLs for html2canvas compatibility
-      const imgs = el.querySelectorAll('img');
-      const origSrcs: string[] = [];
+      imgs = Array.from(el.querySelectorAll('img'));
+      origSrcs = [];
       imgs.forEach((img, i) => {
         origSrcs[i] = img.src;
         if (i === 0) img.src = bgDataUrl;      // Background
@@ -160,23 +188,27 @@ export default function FanCardGenerator() {
         // QR + Photo already data URLs
       });
 
-      // Wait for images to load
-      await new Promise((r) => setTimeout(r, 200));
+      // Wait until all swapped/data images and web fonts are fully ready.
+      await waitForImages(el);
+      await document.fonts?.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+      const width = cardData.orientation === 'portrait' ? 440 : 720;
+      const height = cardData.orientation === 'portrait' ? 690 : 440;
 
       // Capture the hidden off-screen card (no CSS transform parent!)
       const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: null,
         logging: false,
-        width: cardData.orientation === 'portrait' ? 440 : 720,
-        height: cardData.orientation === 'portrait' ? 690 : 440,
-      });
-
-      // Restore original srcs
-      imgs.forEach((img, i) => {
-        if (origSrcs[i]) img.src = origSrcs[i];
+        width,
+        height,
+        windowWidth: width,
+        windowHeight: height,
+        scrollX: 0,
+        scrollY: 0,
       });
 
       const link = document.createElement('a');
@@ -189,6 +221,10 @@ export default function FanCardGenerator() {
     } catch (err) {
       console.error('Download failed:', err);
     } finally {
+      // Always restore preview/render DOM after the html2canvas capture attempt.
+      imgs.forEach((img, i) => {
+        if (origSrcs[i]) img.src = origSrcs[i];
+      });
       setIsDownloading(false);
     }
   }, [cardData.orientation, cardData.name, cardData.bgColor, cardData.school]);
@@ -207,7 +243,7 @@ export default function FanCardGenerator() {
           position: 'fixed',
           left: -9999,
           top: 0,
-          zIndex: -1,
+          zIndex: 0,
           pointerEvents: 'none',
         }}
         aria-hidden="true"
