@@ -14,6 +14,9 @@ import {
   BG_PATHS,
   DEFAULT_FAN_CARD,
   DEFAULT_FAN_CARD_TEXT,
+  PHOTO_FILTER_PRESETS,
+  PhotoFilterPreset,
+  getPhotoFilter,
 } from './types';
 import FanCardPortrait from './FanCardPortrait';
 import FanCardLandscape from './FanCardLandscape';
@@ -36,6 +39,7 @@ import {
   Move,
   Share2,
   Copy,
+  Palette,
 } from 'lucide-react';
 
 /* ── Helper: fetch image and convert to data URL (for html2canvas) ── */
@@ -173,7 +177,18 @@ export default function FanCardGenerator() {
       if (!file?.type.startsWith('image/')) return;
       const reader = new FileReader();
       reader.onload = () => {
-        updateCard({ photoUrl: reader.result as string, photoZoom: 1, photoOffsetX: 0, photoOffsetY: 0 });
+        updateCard({
+          photoUrl: reader.result as string,
+          photoZoom: 1,
+          photoOffsetX: 0,
+          photoOffsetY: 0,
+          photoFilterPreset: 'original',
+          photoBrightness: 100,
+          photoContrast: 100,
+          photoSaturation: 100,
+          photoHue: 0,
+          photoSepia: 0,
+        });
         setShowPhotoControls(true);
       };
       reader.readAsDataURL(file);
@@ -504,13 +519,24 @@ export default function FanCardGenerator() {
                         alt="Preview"
                         width={56}
                         height={56}
-                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                        style={{ objectFit: 'cover', width: '100%', height: '100%', filter: getPhotoFilter(cardData) }}
                       />
                     </div>
                     <div className="flex-1">
                       <p className="text-[10px] sm:text-xs text-text-secondary">Photo uploaded</p>
                       <button
-                        onClick={() => { updateCard({ photoUrl: null, photoZoom: 1, photoOffsetX: 0, photoOffsetY: 0 }); setShowPhotoControls(false); }}
+                        onClick={() => { updateCard({
+                          photoUrl: null,
+                          photoZoom: 1,
+                          photoOffsetX: 0,
+                          photoOffsetY: 0,
+                          photoFilterPreset: 'original',
+                          photoBrightness: 100,
+                          photoContrast: 100,
+                          photoSaturation: 100,
+                          photoHue: 0,
+                          photoSepia: 0,
+                        }); setShowPhotoControls(false); }}
                         className="text-[9px] sm:text-[10px] text-red-400 hover:text-red-300 mt-0.5 transition-colors"
                       >
                         Remove
@@ -595,6 +621,65 @@ export default function FanCardGenerator() {
                       >
                         Reset Position
                       </button>
+
+                      <div className="pt-3 border-t border-lux-border/50 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Palette className="w-3 h-3 text-gold/70" />
+                          <span className="text-[9px] text-text-muted uppercase tracking-wider">Photo Color Filter</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1.5">
+                          {(['original', 'golden', 'cinematic', 'cool', 'mono', 'custom'] as PhotoFilterPreset[]).map((preset) => {
+                            const selected = cardData.photoFilterPreset === preset;
+                            return (
+                              <button
+                                key={preset}
+                                onClick={() => updateCard({ photoFilterPreset: preset })}
+                                className={`px-2 py-1.5 border text-[8px] uppercase tracking-[1px] transition-colors ${
+                                  selected
+                                    ? 'border-gold/60 bg-gold/10 text-gold'
+                                    : 'border-lux-border text-text-muted hover:border-gold/30 hover:text-text-secondary'
+                                }`}
+                              >
+                                {PHOTO_FILTER_PRESETS[preset].label}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {cardData.photoFilterPreset === 'custom' && (
+                          <div className="space-y-2 rounded-lg bg-lux-card/40 border border-lux-border/40 p-3">
+                            {[
+                              ['photoBrightness', 'Brightness', 50, 150, '%'],
+                              ['photoContrast', 'Contrast', 50, 150, '%'],
+                              ['photoSaturation', 'Saturation', 0, 200, '%'],
+                              ['photoHue', 'Hue', -180, 180, '°'],
+                              ['photoSepia', 'Sepia', 0, 100, '%'],
+                            ].map(([key, label, min, max, suffix]) => (
+                              <div key={key as string}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[8px] text-text-muted uppercase tracking-wider">{label}</span>
+                                  <span className="text-[8px] text-text-muted">{cardData[key as keyof typeof cardData] as number}{suffix}</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min={min as number}
+                                  max={max as number}
+                                  step="1"
+                                  value={cardData[key as keyof typeof cardData] as number}
+                                  onChange={(e) => updateCard({ [key as string]: parseFloat(e.target.value) })}
+                                  className="w-full h-1 accent-gold"
+                                />
+                              </div>
+                            ))}
+                            <button
+                              onClick={() => updateCard({ photoBrightness: 100, photoContrast: 100, photoSaturation: 100, photoHue: 0, photoSepia: 0 })}
+                              className="text-[8px] text-gold/60 hover:text-gold transition-colors uppercase tracking-wider"
+                            >
+                              Reset Custom Filter
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

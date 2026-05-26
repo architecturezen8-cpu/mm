@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent } from './types';
+import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent, getPhotoFilter } from './types';
 
 interface FanCardPortraitProps {
   data: FanCardData;
@@ -222,6 +222,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   transformOrigin: 'center center',
                   maxWidth: 'none',
                   maxHeight: 'none',
+                  filter: getPhotoFilter(data),
                 }}
               />
             ) : (
