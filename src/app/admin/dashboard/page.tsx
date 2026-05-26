@@ -1,6 +1,5 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FileText, Image as ImageIcon, Settings, ExternalLink, Plus, BarChart3, Activity } from 'lucide-react';
@@ -20,7 +19,6 @@ interface Page {
 }
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
   const { setCurrentPageId, setSidebarOpen, sidebarOpen } = useAdminStore();
   const [adminName, setAdminName] = useState('Admin');
 
@@ -122,7 +120,7 @@ export default function DashboardPage() {
           <div className="max-w-5xl mx-auto">
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-[#F0EDE6] mb-1">
-                Welcome back, {adminName || session?.user?.name?.split(' ')[0] || 'Admin'}
+                Welcome back, {adminName || 'Admin'}
               </h1>
               <p className="text-[#8A8780] text-sm">Battle of the Golds — Content Manager</p>
             </div>

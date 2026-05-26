@@ -1,8 +1,7 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
 import { useAdminStore } from '@/lib/admin-store';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Save, Eye, Pencil, LogOut, FileText, LayoutDashboard, Menu, X, CheckCircle, XCircle, Loader2, Rocket } from 'lucide-react';
 
@@ -52,7 +51,6 @@ async function readPublishProgress(
 }
 
 export default function AdminBar() {
-  const { data: session } = useSession();
   const {
     isEditMode, setEditMode,
     publishStatus, setPublishStatus,
@@ -67,6 +65,25 @@ export default function AdminBar() {
   const [publishProgress, setPublishProgress] = useState<NDJSONProgress[]>([]);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [adminUser, setAdminUser] = useState<{ name?: string; email?: string; image?: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/session', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled) setAdminUser(data?.user || null);
+      })
+      .catch(() => {
+        if (!cancelled) setAdminUser(null);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleLogout = useCallback(async () => {
+    try { await fetch('/api/admin/logout', { method: 'POST' }); } catch {}
+    window.location.href = '/admin/login';
+  }, []);
 
   // Save & Preview handler (saves to Turso only)
   const handleSavePreview = useCallback(async () => {
@@ -165,7 +182,7 @@ export default function AdminBar() {
     }
   }, [currentPageId, draftContent, setHasUnsavedChanges, setPublishStatus]);
 
-  if (!session) return null;
+  if (!adminUser) return null;
 
   return (
     <>
@@ -258,12 +275,12 @@ export default function AdminBar() {
 
           {/* Profile */}
           <div className="flex items-center gap-2">
-            {session.user?.image && (
-              <img src={session.user.image} className="w-6 h-6 rounded-full" alt="" />
+            {adminUser.image && (
+              <img src={adminUser.image} className="w-6 h-6 rounded-full" alt="" />
             )}
-            <span className="text-[#8A8780] text-xs hidden sm:block max-w-[120px] truncate">{session.user?.name}</span>
+            <span className="text-[#8A8780] text-xs hidden sm:block max-w-[120px] truncate">{adminUser.name || adminUser.email || 'Admin'}</span>
             <button
-              onClick={() => signOut({ callbackUrl: '/admin/login' })}
+              onClick={handleLogout}
               className="text-[#4A4945] hover:text-red-400 transition-colors ml-1"
               title="Sign out"
             >

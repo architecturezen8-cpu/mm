@@ -342,9 +342,20 @@ export default function WeatherTab() {
   const matchDate = getContentString(advisoryContent, 'match_date', DEFAULT_MATCH_DATE).split('T')[0];
   const matchTimeLabel = getContentString(advisoryContent, 'match_time_label', defaultAdvisoryContent.match_time_label);
 
-  // Find match day in forecast (admin-selected date)
-  const matchDayData = forecast.find(f => f.isoDate === matchDate) || null;
+  // Find match day in forecast (admin-selected date). Open-Meteo supports up to 16 days;
+  // if admin selects outside that range, use the closest available day so the report still renders.
+  const exactMatchDayData = forecast.find(f => f.isoDate === matchDate) || null;
+  const selectedMatchTime = new Date(`${matchDate}T00:00:00`).getTime();
+  const closestMatchDayData = forecast.length > 0
+    ? forecast.reduce((best, day) => {
+        const bestDiff = Math.abs(new Date(`${best.isoDate}T00:00:00`).getTime() - selectedMatchTime);
+        const dayDiff = Math.abs(new Date(`${day.isoDate}T00:00:00`).getTime() - selectedMatchTime);
+        return dayDiff < bestDiff ? day : best;
+      }, forecast[0])
+    : null;
+  const matchDayData = exactMatchDayData || closestMatchDayData;
   const advisory = matchDayData ? getAdvisoryLevel(matchDayData.rainProbability, matchDayData.wind, matchDayData.high) : null;
+  const advisoryUsesClosestDate = !!matchDayData && !exactMatchDayData;
 
   // ─── Venue (admin editable) ───
   const vc = useSectionContent('weather-venue', { ...defaultVenueContent });
@@ -404,6 +415,11 @@ export default function WeatherTab() {
                 <p className="text-[9px] text-text-muted uppercase tracking-[1.5px] mt-0.5">
                   111th Battle of the Golds · {matchDate} · {matchTimeLabel}
                 </p>
+                {advisoryUsesClosestDate && matchDayData?.isoDate && (
+                  <p className="text-[8px] text-amber-400/60 uppercase tracking-[1px] mt-0.5">
+                    Using closest available forecast: {matchDayData.isoDate}
+                  </p>
+                )}
               </div>
             </div>
             <AnimatePresence mode="wait">

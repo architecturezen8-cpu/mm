@@ -3,7 +3,6 @@
 import { useAdminEdit } from '@/lib/AdminEditContext';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
 
 export default function AdminToolbar() {
   const { isAdmin, isLoading, editMode, setEditMode, triggerRefresh } = useAdminEdit();
@@ -29,6 +28,11 @@ export default function AdminToolbar() {
   }, []);
 
   if (isLoading || !isAdmin || !isInAdminDashboard) return null;
+
+  const handleLogout = async () => {
+    try { await fetch('/api/admin/logout', { method: 'POST' }); } catch {}
+    window.location.href = '/admin/login';
+  };
 
   const handleClearLocalData = () => {
     if (confirm('Reset to API data? This will reload the page.')) {
@@ -176,7 +180,7 @@ export default function AdminToolbar() {
 
           {/* Logout */}
           <button
-            onClick={() => signOut({ callbackUrl: '/admin' })}
+            onClick={handleLogout}
             className="flex items-center gap-2 px-3 py-1.5 text-[9px] uppercase tracking-[2px] font-bold border border-lux-border text-text-muted hover:border-red-500/30 hover:text-red-400 transition-all"
             style={{ borderRadius: 0 }}
           >

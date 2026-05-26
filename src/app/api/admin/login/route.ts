@@ -22,9 +22,7 @@ export async function POST(req: NextRequest) {
 
     // Simple credential check
     if (ADMIN_EMAILS.includes(email) && password === ADMIN_PASSWORD) {
-      // In development mode, just return success
-      // The admin session is checked via /api/admin/session which returns isAdmin in dev mode
-      return NextResponse.json({
+      const res = NextResponse.json({
         success: true,
         user: {
           id: '1',
@@ -32,6 +30,12 @@ export async function POST(req: NextRequest) {
           name: email.split('@')[0],
         },
       });
+      const secure = process.env.NODE_ENV === 'production';
+      const cookieOptions = { httpOnly: true, sameSite: 'lax' as const, secure, path: '/', maxAge: 60 * 60 * 24 * 7 };
+      // Keep legacy cookie name too because existing admin API routes check it.
+      res.cookies.set('admin-session', '1', cookieOptions);
+      res.cookies.set('next-auth.session-token', '1', cookieOptions);
+      return res;
     }
 
     return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });

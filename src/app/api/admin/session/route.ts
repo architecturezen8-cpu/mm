@@ -23,8 +23,10 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // In production, check for NextAuth session cookie
-    const sessionToken = req.cookies.get('next-auth.session-token')?.value;
+    // In production, check custom admin cookie or legacy NextAuth cookie
+    const sessionToken = req.cookies.get('admin-session')?.value ||
+      req.cookies.get('next-auth.session-token')?.value ||
+      req.cookies.get('__Secure-next-auth.session-token')?.value;
     if (sessionToken) {
       // Session cookie exists — user is logged in
       return NextResponse.json({

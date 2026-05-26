@@ -91,23 +91,6 @@ export function AdminEditProvider({ children }: { children: ReactNode }) {
           if (session?.isAdmin || session?.user) {
             setIsAdmin(true);
           }
-        } else {
-          try {
-            const fallbackRes = await fetch('/api/auth/session');
-            if (fallbackRes.ok) {
-              const text = await fallbackRes.text();
-              try {
-                const session = JSON.parse(text);
-                if (session?.user) {
-                  setIsAdmin(true);
-                }
-              } catch {
-                // NextAuth returned HTML instead of JSON — not logged in
-              }
-            }
-          } catch {
-            // Fallback also failed
-          }
         }
       } catch {
         // Not logged in

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -18,19 +17,6 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      // Try NextAuth signIn first
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (!result?.error) {
-        router.push('/admin/dashboard');
-        return;
-      }
-
-      // NextAuth failed (common in Next.js 16 + Turbopack) — try custom login endpoint
       const customRes = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
