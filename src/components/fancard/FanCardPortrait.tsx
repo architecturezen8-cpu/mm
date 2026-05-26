@@ -38,6 +38,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
       >
         {/* Background Image — using <img> for html2canvas compatibility */}
         <img
+          data-fancard-bg="true"
           src={bgSrc}
           alt=""
           style={{
@@ -82,7 +83,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              marginBottom: 20,
+              marginBottom: 16,
             }}
           >
             {/* School Logo */}
@@ -103,6 +104,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               }}
             >
               <img
+                data-fancard-logo="true"
                 src={logoSrc}
                 alt={school.shortName}
                 width={34}
@@ -133,31 +135,68 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
           {/* Main Title */}
           <div
             style={{
-              color: '#ffffff',
-              fontSize: 32,
-              fontWeight: 800,
               textAlign: 'center',
               textTransform: 'uppercase' as const,
-              lineHeight: 1.15,
-              letterSpacing: 1,
-              marginBottom: 22,
+              marginBottom: 14,
               fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-              textShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
             }}
           >
-            Battle Of The<br />Golds
+            <div
+              style={{
+                color: '#f7b717',
+                fontSize: 8.5,
+                fontWeight: 800,
+                letterSpacing: 3.6,
+                marginBottom: 6,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.55)',
+              }}
+            >
+              THE LEGENDARY
+            </div>
+            <div
+              style={{
+                color: '#ffffff',
+                fontSize: 27,
+                fontWeight: 900,
+                lineHeight: 0.96,
+                letterSpacing: 1.5,
+                textShadow: '0 5px 14px rgba(0, 0, 0, 0.7)',
+              }}
+            >
+              Battle Of The
+            </div>
+            <div
+              style={{
+                color: '#FFC300',
+                fontSize: 36,
+                fontWeight: 900,
+                lineHeight: 0.98,
+                letterSpacing: 3.6,
+                textShadow: '0 5px 16px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 195, 0, 0.22)',
+              }}
+            >
+              Golds
+            </div>
+            <div
+              style={{
+                width: 118,
+                height: 2,
+                margin: '8px auto 0',
+                background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.95), transparent)',
+              }}
+            />
           </div>
 
           {/* Profile Image Container */}
           <div
             style={{
-              width: 285,
-              height: 285,
+              width: 275,
+              height: 275,
               borderRadius: 24,
               overflow: 'hidden',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               boxShadow: '0 20px 35px -10px rgba(0, 0, 0, 0.7)',
-              marginBottom: 22,
+              marginBottom: 18,
               position: 'relative',
               backgroundColor: 'rgba(255,255,255,0.1)',
             }}
@@ -168,10 +207,10 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 alt="Fan Portrait"
                 style={{
                   position: 'absolute',
-                  left: 142.5 + data.photoOffsetX,
-                  top: 142.5 + data.photoOffsetY,
-                  width: 285,
-                  height: 285,
+                  left: 137.5 + data.photoOffsetX,
+                  top: 137.5 + data.photoOffsetY,
+                  width: 275,
+                  height: 275,
                   objectFit: 'cover',
                   transform: `translate(-50%, -50%) scale(${data.photoZoom})`,
                   transformOrigin: 'center center',
@@ -203,14 +242,14 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             style={{
               textAlign: 'center',
               width: '100%',
-              marginBottom: 25,
+              marginBottom: 16,
             }}
           >
             {/* Hashtag */}
             <div
               style={{
                 color: '#ffffff',
-                fontSize: 21,
+                fontSize: 20,
                 fontWeight: 600,
                 marginBottom: 6,
                 letterSpacing: 0.5,
@@ -222,11 +261,11 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             <div
               style={{
                 color: '#ffffff',
-                fontSize: 23,
+                fontSize: 21,
                 fontWeight: 700,
                 textTransform: 'uppercase' as const,
                 letterSpacing: 1,
-                marginBottom: 12,
+                marginBottom: 8,
                 textShadow: '0 2px 8px rgba(0,0,0,0.4)',
               }}
             >
@@ -236,7 +275,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             <div
               style={{
                 color: 'rgba(255, 255, 255, 0.9)',
-                fontSize: 11.5,
+                fontSize: 11,
                 fontWeight: 500,
                 textTransform: 'uppercase' as const,
                 letterSpacing: 1,
@@ -271,13 +310,13 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               }}
             >
               {/* Thomians' Media Branding */}
-              <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', marginTop: 30 }}>
+              <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', marginTop: 20 }}>
                 <img
                   src="/fancard/thomians-media-wordmark.png"
                   alt="Thomians' Media"
-                  width={180}
-                  height={15}
-                  style={{ display: 'block', width: 180, height: 'auto', objectFit: 'contain' }}
+                  width={135}
+                  height={11}
+                  style={{ display: 'block', width: 135, height: 'auto', objectFit: 'contain' }}
                 />
               </div>
 
@@ -287,8 +326,8 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   backgroundColor: '#ffffff',
                   padding: 5,
                   borderRadius: 8,
-                  width: 52,
-                  height: 52,
+                  width: 58,
+                  height: 58,
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -299,12 +338,12 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   <img
                     src={qrDataUrl}
                     alt="QR Code"
-                    width={42}
-                    height={42}
+                    width={48}
+                    height={48}
                     style={{ display: 'block' }}
                   />
                 ) : (
-                  <div style={{ width: 42, height: 42, backgroundColor: '#eee' }} />
+                  <div style={{ width: 48, height: 48, backgroundColor: '#eee' }} />
                 )}
               </div>
             </div>

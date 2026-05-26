@@ -1,12 +1,37 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MatchInfo, InningsData, CommunityData, CommunitySubTab } from '@/lib/types';
 import SubTabNav from '@/components/layout/SubTabNav';
-import PredictionsTab from '@/components/tabs/PredictionsTab';
-import CommunityTab from '@/components/tabs/CommunityTab';
-import LegacyTab from '@/components/tabs/LegacyTab';
+
+function CommunityTabLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="lux-card min-h-36 animate-pulse">
+          <div className="h-3 w-28 bg-white/10 rounded mb-5" />
+          <div className="space-y-3">
+            <div className="h-3 w-full bg-white/5 rounded" />
+            <div className="h-3 w-4/5 bg-white/5 rounded" />
+            <div className="h-3 w-2/3 bg-white/5 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const PredictionsTab = dynamic(() => import('@/components/tabs/PredictionsTab'), {
+  loading: () => <CommunityTabLoading />,
+});
+const CommunityTab = dynamic(() => import('@/components/tabs/CommunityTab'), {
+  loading: () => <CommunityTabLoading />,
+});
+const LegacyTab = dynamic(() => import('@/components/tabs/LegacyTab'), {
+  loading: () => <CommunityTabLoading />,
+});
 
 interface CommunityPageProps {
   matchInfo: MatchInfo;
@@ -51,7 +76,7 @@ export default function CommunityPage({ matchInfo, innings, innings1, innings2, 
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {renderSubTab()}
         </motion.div>

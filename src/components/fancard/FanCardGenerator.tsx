@@ -31,6 +31,8 @@ import {
   ZoomIn,
   ZoomOut,
   Move,
+  Share2,
+  Copy,
 } from 'lucide-react';
 
 /* ── Helper: fetch image and convert to data URL (for html2canvas) ── */
@@ -73,6 +75,17 @@ async function waitForImages(root: HTMLElement): Promise<void> {
   );
 }
 
+function getFanShareUrl(data: FanCardData): string {
+  if (typeof window === 'undefined') return '';
+
+  const url = new URL('/', window.location.origin);
+  url.searchParams.set('fan', data.name.trim() || 'YOURNAME');
+  url.searchParams.set('school', data.school);
+  url.searchParams.set('bg', data.bgColor);
+  if (data.batch.trim()) url.searchParams.set('batch', data.batch.trim());
+  return url.toString();
+}
+
 /* ── Preview scale hook ── */
 function usePreviewScale(orientation: CardOrientation) {
   const [scale, setScale] = useState(0.5);
@@ -111,6 +124,7 @@ export default function FanCardGenerator() {
   const [cardData, setCardData] = useState<FanCardData>(DEFAULT_FAN_CARD);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [showPhotoControls, setShowPhotoControls] = useState(false);
 
@@ -126,12 +140,12 @@ export default function FanCardGenerator() {
 
   /* ── QR Code generation ── */
   useEffect(() => {
-    const name = cardData.name.trim() || 'YOURNAME';
-    const qrValue = `${typeof window !== 'undefined' ? window.location.origin : ''}/?fan=${encodeURIComponent(name)}&school=${cardData.school}&bg=${cardData.bgColor}${cardData.batch ? `&batch=${encodeURIComponent(cardData.batch)}` : ''}`;
+    const qrValue = getFanShareUrl(cardData);
+    if (!qrValue) return;
 
     QRCode.toDataURL(qrValue, {
-      width: 400,
-      margin: 2,
+      width: 640,
+      margin: 4,
       color: { dark: '#000000', light: '#ffffff' },
       errorCorrectionLevel: 'H',
     })
@@ -158,6 +172,7 @@ export default function FanCardGenerator() {
   const handleReset = useCallback(() => {
     setCardData(DEFAULT_FAN_CARD);
     setDownloadSuccess(false);
+    setShareSuccess(false);
     setShowPhotoControls(false);
   }, []);
 
@@ -183,9 +198,9 @@ export default function FanCardGenerator() {
       origSrcs = [];
       imgs.forEach((img, i) => {
         origSrcs[i] = img.src;
-        if (i === 0) img.src = bgDataUrl;      // Background
-        else if (i === 1) img.src = logoDataUrl; // Logo
-        // QR + Photo already data URLs
+        if (img.dataset.fancardBg === 'true') img.src = bgDataUrl;
+        if (img.dataset.fancardLogo === 'true') img.src = logoDataUrl;
+        // QR + Photo already data URLs. Branding is same-origin static PNG.
       });
 
       // Wait until all swapped/data images and web fonts are fully ready.
@@ -228,6 +243,37 @@ export default function FanCardGenerator() {
       setIsDownloading(false);
     }
   }, [cardData.orientation, cardData.name, cardData.bgColor, cardData.school]);
+
+  const handleShare = useCallback(async () => {
+    if (!cardData.name.trim()) return;
+
+    const shareUrl = getFanShareUrl(cardData);
+    const shareText = `Check out my Battle of the Golds fan card ${shareUrl}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Battle of the Golds Fan Card',
+          text: shareText,
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2500);
+    } catch (err) {
+      if ((err as DOMException).name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setShareSuccess(true);
+          setTimeout(() => setShareSuccess(false), 2500);
+        } catch {
+          console.error('Share failed:', err);
+        }
+      }
+    }
+  }, [cardData]);
 
   const school = SCHOOL_INFO[cardData.school];
 
@@ -556,31 +602,45 @@ export default function FanCardGenerator() {
           </motion.div>
 
           {/* Action Buttons */}
-          <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="flex gap-2 sm:gap-3">
+          <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="space-y-2">
+            <div className="flex gap-2 sm:gap-3">
+              <button
+                onClick={handleDownload}
+                disabled={isDownloading || !cardData.name.trim()}
+                className="flex-1 h-10 sm:h-11 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+                style={{
+                  background: isDownloading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #f7b717, #FFC300, #FFD54F)',
+                  color: isDownloading ? 'rgba(255,255,255,0.3)' : '#0a0a0a',
+                  boxShadow: isDownloading ? 'none' : '0 4px 20px rgba(247, 183, 23, 0.2)',
+                }}
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin inline mr-1" />
+                ) : downloadSuccess ? (
+                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
+                )}
+                {downloadSuccess ? 'Downloaded!' : isDownloading ? 'Generating...' : 'Download Card'}
+              </button>
+              <button
+                onClick={handleReset}
+                className="h-10 sm:h-11 px-3 border border-lux-border text-text-muted hover:text-text-secondary hover:border-lux-border/80 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+            </div>
             <button
-              onClick={handleDownload}
-              disabled={isDownloading || !cardData.name.trim()}
-              className="flex-1 h-10 sm:h-11 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
-              style={{
-                background: isDownloading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #f7b717, #FFC300, #FFD54F)',
-                color: isDownloading ? 'rgba(255,255,255,0.3)' : '#0a0a0a',
-                boxShadow: isDownloading ? 'none' : '0 4px 20px rgba(247, 183, 23, 0.2)',
-              }}
+              onClick={handleShare}
+              disabled={!cardData.name.trim()}
+              className="w-full h-10 sm:h-11 border border-gold/30 bg-gold/5 text-gold hover:bg-gold/10 disabled:opacity-40 disabled:hover:bg-gold/5 transition-all duration-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
             >
-              {isDownloading ? (
-                <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin inline mr-1" />
-              ) : downloadSuccess ? (
-                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
+              {shareSuccess ? (
+                <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
               ) : (
-                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
+                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
               )}
-              {downloadSuccess ? 'Downloaded!' : isDownloading ? 'Generating...' : 'Download Card'}
-            </button>
-            <button
-              onClick={handleReset}
-              className="h-10 sm:h-11 px-3 border border-lux-border text-text-muted hover:text-text-secondary hover:border-lux-border/80 transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {shareSuccess ? 'Link Copied / Shared' : 'Share Card'}
             </button>
           </motion.div>
 
@@ -596,16 +656,24 @@ export default function FanCardGenerator() {
         <div className="order-1 lg:order-2">
           <div className="lg:sticky lg:top-24">
             <div className="text-text-muted/30 text-[8px] sm:text-[9px] uppercase tracking-[2px] mb-2 sm:mb-3 text-center">Live Preview</div>
-            <div className="flex items-center justify-center overflow-hidden rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
+            <div className="flex items-start justify-center overflow-visible rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
               <div
-                className="transition-all duration-500 origin-top"
+                className="relative transition-all duration-500"
                 style={{
-                  transform: `scale(${previewScale})`,
                   height: (cardData.orientation === 'portrait' ? 690 : 440) * previewScale,
                   width: (cardData.orientation === 'portrait' ? 440 : 720) * previewScale,
+                  maxWidth: '100%',
                 }}
               >
-                <div style={{ width: cardData.orientation === 'portrait' ? 440 : 720, height: cardData.orientation === 'portrait' ? 690 : 440 }}>
+                <div
+                  className="origin-top-left"
+                  style={{
+                    width: cardData.orientation === 'portrait' ? 440 : 720,
+                    height: cardData.orientation === 'portrait' ? 690 : 440,
+                    transform: `scale(${previewScale})`,
+                    transformOrigin: 'top left',
+                  }}
+                >
                   {cardData.orientation === 'portrait' ? (
                     <FanCardPortrait data={cardData} qrDataUrl={qrDataUrl} />
                   ) : (
@@ -621,6 +689,14 @@ export default function FanCardGenerator() {
                 Live
               </span>
             </div>
+            <button
+              onClick={handleShare}
+              disabled={!cardData.name.trim()}
+              className="mt-3 w-full h-10 border border-gold/25 bg-gold/5 text-gold hover:bg-gold/10 disabled:opacity-40 disabled:hover:bg-gold/5 transition-all duration-300 text-[9px] font-bold uppercase tracking-wider lg:hidden"
+            >
+              <Share2 className="w-3.5 h-3.5 inline mr-1" />
+              {shareSuccess ? 'Link Copied / Shared' : 'Share Card'}
+            </button>
           </div>
         </div>
       </div>

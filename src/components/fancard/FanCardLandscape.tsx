@@ -38,6 +38,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
       >
         {/* Background Image — using <img> for html2canvas compatibility */}
         <img
+          data-fancard-bg="true"
           src={bgSrc}
           alt=""
           style={{
@@ -152,6 +153,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 }}
               >
                 <img
+                  data-fancard-logo="true"
                   src={logoSrc}
                   alt={school.shortName}
                   width={32}
@@ -181,34 +183,61 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             {/* Main Title */}
             <div
               style={{
-                color: '#ffffff',
-                fontSize: 26,
-                fontWeight: 800,
                 textAlign: 'left',
                 textTransform: 'uppercase' as const,
-                lineHeight: 1.2,
-                letterSpacing: 1,
                 marginTop: 10,
+                marginBottom: 6,
                 fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-                textShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
               }}
             >
-              Battle Of The Golds
+              <div
+                style={{
+                  color: '#ffffff',
+                  fontSize: 22,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: 1.2,
+                  textShadow: '0 4px 12px rgba(0, 0, 0, 0.65)',
+                }}
+              >
+                Battle Of The
+              </div>
+              <div
+                style={{
+                  color: '#FFC300',
+                  fontSize: 35,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: 3,
+                  textShadow: '0 4px 14px rgba(0, 0, 0, 0.75), 0 0 18px rgba(255, 195, 0, 0.2)',
+                }}
+              >
+                Golds
+              </div>
+              <div
+                style={{
+                  width: 118,
+                  height: 2,
+                  marginTop: 8,
+                  background: 'linear-gradient(90deg, rgba(255,195,0,0.95), rgba(255,195,0,0.08), transparent)',
+                }}
+              />
             </div>
 
             {/* Details: Hashtag, Cheers, School Info */}
-            <div style={{ textAlign: 'left', marginTop: 5 }}>
-              <div style={{ color: '#ffffff', fontSize: 19, fontWeight: 600, marginBottom: 2, letterSpacing: 0.5 }}>
+            <div style={{ textAlign: 'left', marginTop: 4 }}>
+              <div style={{ color: '#ffffff', fontSize: 18, fontWeight: 650, marginBottom: 6, letterSpacing: 0.5 }}>
                 {hashtag}
               </div>
               <div
                 style={{
                   color: '#ffffff',
-                  fontSize: 17,
-                  fontWeight: 700,
+                  fontSize: 15.5,
+                  fontWeight: 750,
                   textTransform: 'uppercase' as const,
                   letterSpacing: 1,
-                  marginBottom: 6,
+                  lineHeight: 1.35,
+                  marginBottom: 9,
                   textShadow: '0 2px 8px rgba(0,0,0,0.4)',
                 }}
               >
@@ -217,11 +246,11 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: 500,
                   textTransform: 'uppercase' as const,
-                  letterSpacing: 1,
-                  lineHeight: 1.4,
+                  letterSpacing: 0.9,
+                  lineHeight: 1.6,
                 }}
               >
                 <strong style={{ fontWeight: 700, color: '#ffffff' }}>{school.name}</strong>
@@ -242,9 +271,9 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   <img
                     src="/fancard/thomians-media-wordmark.png"
                     alt="Thomians' Media"
-                    width={160}
-                    height={13}
-                    style={{ display: 'block', width: 160, height: 'auto', objectFit: 'contain' }}
+                    width={132}
+                    height={11}
+                    style={{ display: 'block', width: 132, height: 'auto', objectFit: 'contain' }}
                   />
                 </div>
 
@@ -254,8 +283,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     backgroundColor: '#ffffff',
                     padding: 4,
                     borderRadius: 6,
-                    width: 46,
-                    height: 46,
+                    width: 56,
+                    height: 56,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -266,12 +295,12 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     <img
                       src={qrDataUrl}
                       alt="QR Code"
-                      width={38}
-                      height={38}
+                      width={48}
+                      height={48}
                       style={{ display: 'block' }}
                     />
                   ) : (
-                    <div style={{ width: 38, height: 38, backgroundColor: '#eee' }} />
+                    <div style={{ width: 48, height: 48, backgroundColor: '#eee' }} />
                   )}
                 </div>
               </div>
