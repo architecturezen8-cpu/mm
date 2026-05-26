@@ -109,6 +109,15 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [header, data] = dataUrl.split(',');
+  const mime = header.match(/data:(.*?);base64/)?.[1] || 'image/png';
+  const binary = atob(data);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
 /* ── Preview scale hook ── */
 function usePreviewScale(orientation: CardOrientation) {
   const [scale, setScale] = useState(0.5);
@@ -399,7 +408,8 @@ export default function FanCardGenerator() {
         style: { width: `${width}px`, height: `${height}px`, transform: 'none' },
       });
 
-      const blob = await (await fetch(dataUrl)).blob();
+      // Avoid fetch(dataUrl): some deployments block it via CSP. Decode locally instead.
+      const blob = dataUrlToBlob(dataUrl);
       const safeName = (cardData.name || 'fan').replace(/\s+/g, '-').toLowerCase();
       const file = new File([blob], `fancard-${safeName}-${cardData.orientation}.png`, { type: 'image/png' });
       const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };

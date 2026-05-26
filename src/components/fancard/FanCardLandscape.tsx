@@ -303,16 +303,15 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 }}
               >
                 <strong style={{ fontWeight: 700, color: '#ffffff' }}>{school.name}</strong>
-                {data.batch && (
+                {(data.batch || data.fanMessage) && (
                   <>
                     <br />
                     {data.batch}
-                  </>
-                )}
-                {data.fanMessage && (
-                  <>
-                    <br />
-                    <span style={{ color: 'rgba(255,195,0,0.78)', fontSize: 8.5, fontWeight: 700 }}>{data.fanMessage.slice(0, 28)}</span>
+                    {data.fanMessage && (
+                      <span style={{ color: 'rgba(255,195,0,0.78)', fontSize: 8.5, fontWeight: 700 }}>
+                        {data.batch ? ' · ' : ''}{data.fanMessage.slice(0, 18)}
+                      </span>
+                    )}
                   </>
                 )}
               </div>

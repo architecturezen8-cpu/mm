@@ -9,8 +9,11 @@ interface VotingComingSoonProps {
 export default function VotingComingSoon({ variant = 'voting' }: VotingComingSoonProps) {
   const title = variant === 'predictions' ? 'The Ultimate Clash Awaits' : 'The Crowd Choice Awaits';
   const subtitle = variant === 'predictions'
-    ? 'Get ready to submit your predictions on match day.'
-    : 'Voting is currently closed. Polls will open when the admin enables voting.';
+    ? 'Get Ready to Unleash Your Vote on Match Day!'
+    : 'Get Ready to Unleash Your Vote on Match Day!';
+  const pills = variant === 'predictions'
+    ? ['Predictions', 'Top Scorer', 'Player of Match']
+    : ['Crowd Choice', 'Live Polls', '6 Categories'];
 
   return (
     <div className="relative overflow-hidden border border-gold/25 bg-gradient-to-b from-[#0c0c12] via-[#08080c] to-[#050507] p-[1px]">
@@ -54,9 +57,27 @@ export default function VotingComingSoon({ variant = 'voting' }: VotingComingSoo
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="px-3 py-1.5 border border-gold/20 bg-gold/5 text-[9px] uppercase tracking-[2px] text-gold/80">Admin Controlled</span>
-            <span className="px-3 py-1.5 border border-lux-border bg-white/[0.02] text-[9px] uppercase tracking-[2px] text-text-muted">Zero Lag Mode</span>
-            <span className="px-3 py-1.5 border border-[#E63946]/20 bg-[#E63946]/5 text-[9px] uppercase tracking-[2px] text-[#E63946]/70">Await Match Day</span>
+            {pills.map((pill, i) => (
+              <span
+                key={pill}
+                className={`px-3 py-1.5 border text-[9px] uppercase tracking-[2px] ${
+                  i === 0
+                    ? 'border-gold/25 bg-gold/5 text-gold/85'
+                    : i === 1
+                      ? 'border-[#FF8C00]/25 bg-[#FF8C00]/5 text-[#FFB347]/80'
+                      : 'border-[#E63946]/25 bg-[#E63946]/5 text-[#E63946]/80'
+                }`}
+              >
+                {pill}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex justify-center">
+            <span className="inline-flex items-center gap-2 text-[9px] uppercase tracking-[3px] text-text-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold/70" />
+              Available on Match Day
+            </span>
           </div>
         </div>
       </div>
