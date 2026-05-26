@@ -1,0 +1,1309 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: #020204;
+  --color-foreground: #e8e4dc;
+  --font-sans: var(--font-inter);
+
+  /* LUXURY PALETTE — Only Gold + Monochrome */
+  --color-lux-bg: #020204;
+  --color-lux-card: #08080c;
+  --color-lux-surface: #0e0e14;
+  --color-lux-elevated: #141418;
+  --color-lux-border: #1a1a22;
+  --color-lux-border-hover: #28283a;
+  --color-lux-divider: #12121a;
+
+  /* Gold — Single accent, multiple variants */
+  --color-gold: #FFC300;
+  --color-gold-bright: #FFD54F;
+  --color-gold-dim: #CC9C00;
+  --color-gold-muted: #997500;
+  --color-gold-ghost: rgba(255, 195, 0, 0.08);
+  --color-gold-subtle: rgba(255, 195, 0, 0.14);
+
+  /* Text hierarchy */
+  --color-text-primary: #F0EDE6;
+  --color-text-secondary: #8A8780;
+  --color-text-muted: #4A4945;
+
+  /* Status — Muted versions */
+  --color-status-positive: #8FB06A;
+  --color-status-negative: #C07060;
+  --color-status-neutral: #6A8AAA;
+
+  --radius-sm: 1px;
+  --radius-md: 1px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+
+  --color-card: #08080c;
+  --color-card-foreground: #F0EDE6;
+  --color-popover: #08080c;
+  --color-popover-foreground: #F0EDE6;
+  --color-primary: #FFC300;
+  --color-primary-foreground: #020204;
+  --color-secondary: #0e0e14;
+  --color-secondary-foreground: #F0EDE6;
+  --color-muted: #0e0e14;
+  --color-muted-foreground: #8A8780;
+  --color-destructive: #C07060;
+  --color-border: #1a1a22;
+  --color-input: #1a1a22;
+  --color-ring: #FFC300;
+
+  --animate-shimmer: shimmer 2.5s ease-in-out infinite;
+  --animate-pulse-gold: pulse-gold 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  30% { transform: translate(3%, -15%); }
+  50% { transform: translate(-15%, 5%); }
+  70% { transform: translate(8%, 10%); }
+  90% { transform: translate(-10%, 2%); }
+}
+
+body {
+  background: #020204;
+  color: #F0EDE6;
+  overflow-x: hidden;
+}
+
+/* Grain texture overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #08080c; }
+::-webkit-scrollbar-thumb { background: #1a1a22; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #28283a; }
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    border-radius: 0;
+  }
+  body {
+    @apply bg-lux-bg text-foreground;
+  }
+}
+
+/* LUXURY CARD */
+.lux-card {
+  background-color: #08080c;
+  border: 1px solid #1a1a22;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 80px -20px rgba(0, 0, 0, 0.7);
+  transition: border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lux-card:hover {
+  border-color: #28283a;
+  box-shadow: 0 24px 100px -20px rgba(255, 195, 0, 0.02);
+}
+.lux-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,195,0,0.15) 20%, rgba(255,195,0,0.35) 50%, rgba(255,195,0,0.15) 80%, transparent 100%);
+}
+
+.lux-card-gold {
+  background-color: #08080c;
+  border: 1px solid #1a1a22;
+  border-left: 2px solid #FFC300;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 80px -20px rgba(0, 0, 0, 0.7);
+  transition: border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lux-card-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,195,0,0.15) 20%, rgba(255,195,0,0.35) 50%, rgba(255,195,0,0.15) 80%, transparent 100%);
+}
+
+.card-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #4A4945;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.card-title .icon {
+  color: #FFC300;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Premium Icon Animations ─── */
+.icon-pulse {
+  animation: iconPulse 2s ease-in-out infinite;
+}
+@keyframes iconPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.icon-stroke-animate {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: iconStrokeDraw 2s ease-in-out infinite;
+}
+@keyframes iconStrokeDraw {
+  0% { stroke-dashoffset: 30; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -30; }
+}
+
+/* ── Gold shimmer animation for voting card ─── */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.icon-bar-animate {
+  animation: iconBarGrow 1.5s ease-out infinite;
+  transform-origin: bottom;
+}
+@keyframes iconBarGrow {
+  0% { transform: scaleY(0); }
+  50% { transform: scaleY(1); }
+  70%, 100% { transform: scaleY(1); }
+}
+
+.icon-tick-animate {
+  transform-origin: 12px 13px;
+  animation: iconTick 4s linear infinite;
+}
+@keyframes iconTick {
+  0%, 90% { transform: rotate(0deg); }
+  95% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.icon-wave-animate {
+  animation: iconWave 2s ease-in-out infinite;
+}
+@keyframes iconWave {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Navbar Center-Outward Underline ─── */
+.nav-link-item {
+  position: relative;
+}
+.nav-link-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  height: 2px;
+  background: #FFC300;
+  transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.nav-link-item:hover::after {
+  left: 4px;
+  right: 4px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #12121a;
+}
+.stat-row:last-child {
+  border-bottom: 0;
+}
+
+.lux-table {
+  width: 100%;
+  font-size: 13px;
+}
+.lux-table th {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #4A4945;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 9px;
+  background-color: rgba(14, 14, 20, 0.5);
+  border-bottom: 1px solid #1a1a22;
+}
+.lux-table td {
+  padding: 0.75rem 1rem;
+  color: #8A8780;
+  border-bottom: 1px solid #12121a;
+}
+.lux-table tr:hover td {
+  background-color: rgba(255, 195, 0, 0.03);
+}
+.lux-table tr {
+  transition: background 0.2s ease;
+}
+
+/* ============================================
+   PRELOADER — Premium full-page experience
+   ============================================ */
+/* Full-page preloader — replaces entire page, not an overlay */
+.preloader-fullpage {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #030303;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.preloader-fullpage.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ambient glow behind content */
+.preloader-glow {
+  position: absolute;
+  width: min(560px, 85vw);
+  height: min(560px, 85vw);
+  background: radial-gradient(circle, rgba(255, 195, 0, 0.04) 0%, rgba(230, 57, 70, 0.02) 35%, transparent 65%);
+  animation: glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.08); }
+}
+
+/* Centered content column */
+.preloader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Logo wrap */
+.preloader-logo-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.preloader-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  max-height: 84px;
+  object-fit: contain;
+}
+
+/* ── TEXT ANIMATION: stroke-draw → fill × 3 loops ── */
+.preloader-text-animate {
+  font-size: 112px;
+  letter-spacing: 1.5px;
+  fill: transparent;
+  stroke: white;
+  stroke-width: 1.3px;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: preloaderTextSequence 6s ease-in-out 3;
+}
+
+.preloader-bold-txt {
+  font-weight: 900;
+}
+.preloader-light-txt {
+  font-weight: 300;
+}
+
+@keyframes preloaderTextSequence {
+  0% { stroke-dashoffset: 1000; fill: transparent; stroke: white; }
+  35% { stroke-dashoffset: 0; fill: transparent; stroke: white; }
+  50%, 75% { stroke-dashoffset: 0; fill: white; stroke: transparent; }
+  87% { stroke-dashoffset: 0; fill: transparent; stroke: white; }
+  100% { stroke-dashoffset: 1000; fill: transparent; stroke: transparent; }
+}
+
+/* ── BAR ANIMATION: stroke-draw → fill × 3 loops ── */
+.preloader-bar-animate {
+  stroke-width: 3.5px;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  fill: transparent;
+  opacity: 0;
+  animation: preloaderBarSequence 6s ease-in-out 3;
+}
+
+/* Bar 1 — Gold (leftmost) */
+.preloader-bar-1 {
+  stroke: #FFC300;
+  animation-delay: 0.5s;
+  --fill-col: #FFC300;
+}
+/* Bar 2 — Blue */
+.preloader-bar-2 {
+  stroke: #3B82F6;
+  animation-delay: 0.7s;
+  --fill-col: #3B82F6;
+}
+/* Bar 3 — Dark Navy */
+.preloader-bar-3 {
+  stroke: #122440;
+  animation-delay: 0.9s;
+  --fill-col: #122440;
+}
+
+@keyframes preloaderBarSequence {
+  0%, 4.9% { opacity: 0; stroke-dashoffset: 600; }
+  5% { opacity: 1; stroke-dashoffset: 600; }
+  35% { stroke-dashoffset: 0; fill: transparent; opacity: 1; }
+  45%, 70% { stroke-dashoffset: 0; fill: var(--fill-col); stroke: transparent; opacity: 1; }
+  82% { stroke-dashoffset: 0; fill: transparent; stroke: var(--fill-col); opacity: 1; }
+  95% { stroke-dashoffset: 600; fill: transparent; opacity: 1; }
+  97%, 100% { opacity: 0; stroke-dashoffset: 600; }
+}
+
+@keyframes text-reveal {
+  to { opacity: 1; }
+}
+
+/* White loading bar — right below logo */
+.preloader-bar-container {
+  width: 100%;
+  max-width: 320px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  opacity: 0;
+  animation: text-reveal 0.5s ease 1.5s forwards;
+}
+.preloader-bar-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.6), white, rgba(255,255,255,0.6));
+  animation: bar-fill 16s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+}
+@keyframes bar-fill {
+  to { width: 100%; }
+}
+
+/* Typewriter sentence */
+.preloader-typewriter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  opacity: 0;
+  animation: text-reveal 0.5s ease 0.8s forwards;
+}
+.preloader-typewriter-text {
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #8A8780;
+}
+.preloader-typewriter-cursor {
+  font-size: 11px;
+  font-weight: 300;
+  color: #FFC300;
+  animation: cursorBlink 0.8s ease-in-out infinite;
+  margin-left: 2px;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Page content fade-in after preloader */
+.page-content-hidden {
+  opacity: 0;
+}
+.page-content-fadein {
+  animation: pageFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   LOGO COLOR STRIP — Animated fill
+   ============================================ */
+.logo-bar-animate {
+  stroke-width: 2px;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  fill: transparent;
+  animation: logoBarFill 4s ease-in-out infinite;
+}
+
+.logo-bar-gold {
+  stroke: #FFC300;
+  animation-delay: 0s;
+  --fill-col: #FFC300;
+}
+.logo-bar-blue {
+  stroke: #3B82F6;
+  animation-delay: 0.3s;
+  --fill-col: #3B82F6;
+}
+.logo-bar-navy {
+  stroke: #122440;
+  animation-delay: 0.6s;
+  --fill-col: #122440;
+}
+
+@keyframes logoBarFill {
+  0% { stroke-dashoffset: 300; fill: transparent; stroke: var(--fill-col); }
+  40% { stroke-dashoffset: 0; fill: transparent; stroke: var(--fill-col); }
+  55%, 85% { stroke-dashoffset: 0; fill: var(--fill-col); stroke: transparent; }
+  95% { stroke-dashoffset: 0; fill: transparent; stroke: var(--fill-col); }
+  100% { stroke-dashoffset: 300; fill: transparent; stroke: transparent; }
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer-container {
+  border-top: 1px solid #1a1a22;
+  padding: 3rem 0 2rem;
+  margin-top: 4rem;
+  position: relative;
+}
+.footer-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,195,0,0.3), transparent);
+}
+
+.footer-logo-bordered {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #1a1a22;
+  border-bottom: 1px solid rgba(255, 195, 0, 0.2);
+  background: rgba(8, 8, 12, 0.5);
+  transition: border-color 0.5s ease;
+}
+.footer-logo-bordered:hover {
+  border-color: #28283a;
+}
+.footer-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #F0EDE6;
+  text-transform: uppercase;
+}
+.footer-logo-sub {
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  color: #8A8780;
+  text-transform: uppercase;
+}
+.footer-section-title {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #6A6560;
+  margin-bottom: 0.75rem;
+}
+.footer-link {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: #8A8780;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.footer-link:hover {
+  color: #FFC300;
+}
+.footer-copyright {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: #6A6560;
+  text-transform: uppercase;
+  text-align: center;
+}
+.footer-powered {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #3A3835;
+  text-transform: uppercase;
+}
+
+/* Social icons in footer */
+.footer-social-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #1a1a22;
+  background: transparent;
+  color: #6A6560;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.footer-social-btn:hover {
+  border-color: #FFC300;
+  color: #FFC300;
+  background: rgba(255, 195, 0, 0.03);
+}
+.footer-social-btn svg {
+  flex-shrink: 0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+  .preloader-content {
+    max-width: 580px;
+  }
+  .preloader-svg {
+    max-height: 74px;
+  }
+  .preloader-bar-container {
+    max-width: 300px;
+  }
+}
+@media (max-width: 768px) {
+  .preloader-content {
+    max-width: 480px;
+  }
+  .preloader-svg {
+    max-height: 66px;
+  }
+  .preloader-bar-container {
+    max-width: 270px;
+  }
+  .preloader-typewriter-text,
+  .preloader-typewriter-cursor {
+    font-size: 9px;
+    letter-spacing: 1.8px;
+  }
+}
+@media (max-width: 640px) {
+  .lux-card {
+    padding: 1.25rem;
+  }
+  .card-title {
+    letter-spacing: 2.5px;
+    font-size: 9px;
+    margin-bottom: 1.25rem;
+  }
+  .lux-table th, .lux-table td {
+    padding: 0.5rem 0.625rem;
+    font-size: 11px;
+  }
+  .lux-table th {
+    font-size: 8px;
+  }
+
+  /* Preloader — mobile compact */
+  .preloader-content {
+    max-width: 380px;
+  }
+  .preloader-svg {
+    max-height: 52px;
+  }
+  .preloader-bar-container {
+    max-width: 220px;
+  }
+  .preloader-bar-animate {
+    stroke-width: 2.5px;
+  }
+  .preloader-typewriter-text,
+  .preloader-typewriter-cursor {
+    font-size: 8px;
+    letter-spacing: 1.2px;
+  }
+
+  /* Footer mobile */
+  .footer-logo-bordered {
+    padding: 0.5rem 0.75rem;
+  }
+  .footer-social-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 8px;
+    gap: 0.35rem;
+  }
+  .footer-social-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+@media (max-width: 380px) {
+  .preloader-content {
+    max-width: 330px;
+  }
+  .preloader-svg {
+    max-height: 44px;
+  }
+  .preloader-bar-container {
+    max-width: 190px;
+  }
+  .preloader-typewriter-text,
+  .preloader-typewriter-cursor {
+    font-size: 7px;
+    letter-spacing: 0.8px;
+  }
+  .footer-logo-bordered {
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* ============================================
+   PLAYING XI — Portrait Player Cards
+   ============================================ */
+
+/* Card container - portrait orientation */
+.player-card-portrait {
+  position: relative;
+  aspect-ratio: 3 / 4.5;
+  overflow: hidden;
+  background: #08080c;
+  border: 1px solid #1a1a22;
+  cursor: pointer;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.player-card-portrait:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--team-color, #28283a);
+  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.8),
+              0 0 20px color-mix(in srgb, var(--team-color, #28283a) 15%, transparent);
+}
+
+/* Highlighted state - 3s sequential animation — NO glow, just border + lift */
+.player-card-highlighted {
+  border-color: var(--team-color, #FFC300) !important;
+  box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.8) !important;
+  transform: translateY(-8px) scale(1.04);
+  z-index: 2;
+}
+
+/* Photo wrap */
+.player-card-photo-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+.player-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1);
+}
+.player-card-photo.loaded {
+  opacity: 1;
+}
+/* Photo zoom on highlight — smooth zoom in only (no zoom out) */
+.player-card-highlighted .player-card-photo.loaded {
+  animation: photoZoomIn 3s ease-in-out infinite;
+}
+/* Photo zoom on hover only */
+.player-card-portrait:hover .player-card-photo.loaded {
+  transform: scale(1.08);
+  animation: none;
+}
+/* Hover + highlighted combined — smooth zoom still runs */
+.player-card-portrait.player-card-highlighted:hover .player-card-photo.loaded {
+  animation: photoZoomIn 3s ease-in-out infinite;
+}
+@keyframes photoZoomIn {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.12); }
+}
+
+/* Shimmer loading state */
+.player-card-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    #0e0e14 0%,
+    #141418 40%,
+    #1a1a22 50%,
+    #141418 60%,
+    #0e0e14 100%
+  );
+  background-size: 200% 100%;
+  animation: cardShimmer 1.5s ease-in-out infinite;
+}
+@keyframes cardShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Photo fallback (no image) */
+.player-card-photo-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-card-initials {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.15);
+  text-transform: uppercase;
+}
+
+/* Bottom gradient overlay */
+.player-card-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background: linear-gradient(
+    to top,
+    rgba(2, 2, 4, 0.95) 0%,
+    rgba(2, 2, 4, 0.85) 25%,
+    rgba(2, 2, 4, 0.6) 50%,
+    rgba(2, 2, 4, 0.2) 75%,
+    transparent 100%
+  );
+  z-index: 2;
+  transition: height 0.4s ease;
+}
+.player-card-portrait:hover .player-card-gradient {
+  height: 70%;
+}
+
+/* Team color accent line at top */
+.player-card-accent-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 5;
+  opacity: 0.6;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
+.player-card-portrait:hover .player-card-accent-line,
+.player-card-highlighted .player-card-accent-line {
+  opacity: 1;
+  height: 3px;
+}
+
+/* CAPTAIN badge */
+.player-card-captain-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid;
+  z-index: 5;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  animation: captainPulse 2s ease-in-out infinite;
+}
+@keyframes captainPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Jersey number - top right */
+.player-card-jersey-top {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  z-index: 5;
+  opacity: 0.3;
+  font-family: var(--font-sans, monospace);
+  letter-spacing: 1px;
+  transition: opacity 0.3s ease;
+}
+.player-card-portrait:hover .player-card-jersey-top {
+  opacity: 0.5;
+}
+
+/* Bottom info overlay */
+.player-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 3;
+  transform: translateY(10px);
+  opacity: 0.7;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s ease;
+}
+.player-card-portrait:hover .player-card-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+.player-card-highlighted .player-card-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Role row */
+.player-card-role-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Player name */
+.player-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F0EDE6;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+/* School name */
+.player-card-school {
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  color: #8A8780;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+/* Jersey badge at bottom */
+.player-card-jersey-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border: 1px solid;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+
+
+/* ── Team Header Section ─── */
+.team-header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  gap: 0.5rem;
+}
+.team-header-logo {
+  margin-bottom: 0.25rem;
+}
+.team-header-name {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  color: #F0EDE6;
+}
+.team-header-divider {
+  height: 1px;
+  width: 60px;
+  margin: 0.25rem 0;
+}
+.team-header-subtitle {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #4A4945;
+  text-align: center;
+}
+
+/* ============================================
+   GLOBAL TEAM COLOR UTILITIES
+   St.Thomas' = Gold (#FFC300), Science College = Red (#E63946)
+   ============================================ */
+.team-stc {
+  color: #FFC300;
+}
+.team-gsc {
+  color: #E63946;
+}
+
+/* ============================================
+   PREMIUM LOGO ANIMATION — Round border with rotating glow
+   Supports both Gold (St.Thomas') and Red (Science College)
+   ============================================ */
+.premium-logo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.premium-logo-border {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+  overflow: visible;
+}
+
+.premium-logo-border::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50% !important;
+  border: 2px solid transparent;
+  border-top-color: var(--team-color, #E63946);
+  border-right-color: var(--team-color, #E63946);
+  animation: premiumLogoSpin 2s linear infinite;
+}
+
+.premium-logo-border::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50% !important;
+  border: 1px solid transparent;
+  border-bottom-color: var(--team-color, #E63946);
+  border-left-color: color-mix(in srgb, var(--team-color, #E63946) 30%, transparent);
+  animation: premiumLogoSpin 3s linear infinite reverse;
+}
+
+.premium-logo-inner {
+  width: 72px;
+  height: 72px;
+  border-radius: 50% !important;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, color-mix(in srgb, var(--team-color, #E63946) 5%, transparent) 0%, transparent 70%);
+  overflow: hidden;
+}
+
+@keyframes premiumLogoSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Premium logo glow pulse */
+.premium-logo-container::before {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, color-mix(in srgb, var(--team-color, #E63946) 15%, transparent) 0%, transparent 70%);
+  opacity: 0.06;
+  animation: premiumLogoPulse 3s ease-in-out infinite;
+}
+
+@keyframes premiumLogoPulse {
+  0%, 100% { opacity: 0.04; transform: scale(1); }
+  50% { opacity: 0.1; transform: scale(1.1); }
+}
+
+@media (min-width: 640px) {
+  .premium-logo-border {
+    width: 100px;
+    height: 100px;
+  }
+  .premium-logo-inner {
+    width: 84px;
+    height: 84px;
+  }
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered children delay for scroll reveal */
+.scroll-reveal-delay-1 { transition-delay: 0.1s; }
+.scroll-reveal-delay-2 { transition-delay: 0.2s; }
+.scroll-reveal-delay-3 { transition-delay: 0.3s; }
+.scroll-reveal-delay-4 { transition-delay: 0.4s; }
+
+.duration-1200 {
+  transition-duration: 1200ms;
+}
+
+/* ── Player Card Responsive ── */
+@media (max-width: 640px) {
+  .player-card-portrait {
+    aspect-ratio: 3 / 4.8;
+  }
+  .player-card-name {
+    font-size: 11px;
+  }
+  .player-card-school {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .player-card-jersey-top {
+    font-size: 1.2rem;
+  }
+  .player-card-info {
+    padding: 0.75rem;
+  }
+  .player-card-role-row {
+    font-size: 7px;
+  }
+  .player-card-jersey-badge {
+    font-size: 8px;
+    padding: 1px 6px;
+  }
+  .team-header-name {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+}
+
+/* ============================================
+   LEAFLET MAP — Watch Party (Dark Theme)
+   ============================================ */
+.watch-party-map {
+  background: #06060a !important;
+  border-radius: 2px;
+  position: absolute;
+  inset: 0;
+}
+
+/* Override Leaflet tile styling */
+.watch-party-map .leaflet-tile-pane {
+  filter: brightness(0.55) saturate(0.3) contrast(1.1);
+}
+
+/* Remove default borders/shadows from Leaflet */
+.watch-party-map .leaflet-control-zoom {
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  background: rgba(8,8,12,0.9) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 2px !important;
+  overflow: hidden;
+}
+.watch-party-map .leaflet-control-zoom a {
+  color: #8A8780 !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  font-size: 14px !important;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.watch-party-map .leaflet-control-zoom a:hover {
+  color: #FFC300 !important;
+  background: rgba(255,195,0,0.05) !important;
+}
+.watch-party-map .leaflet-control-zoom a:last-child {
+  border-bottom: none !important;
+}
+
+/* Tooltip styling */
+.map-tooltip {
+  background: rgba(8,8,12,0.95) !important;
+  border: 1px solid rgba(255,195,0,0.3) !important;
+  border-radius: 2px !important;
+  color: #F0EDE6 !important;
+  padding: 8px 12px !important;
+  box-shadow: 0 12px 40px -10px rgba(0,0,0,0.8) !important;
+  backdrop-filter: blur(8px);
+  font-family: inherit !important;
+}
+.map-tooltip::before {
+  border-top-color: rgba(255,195,0,0.3) !important;
+}
+
+/* User country tooltip — red border */
+.leaflet-tooltip.user-tooltip {
+  border-color: rgba(239,68,68,0.4) !important;
+}
+.leaflet-tooltip.user-tooltip::before {
+  border-top-color: rgba(239,68,68,0.4) !important;
+}
+
+/* Hide Leaflet attribution */
+.watch-party-map .leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Subtle grid overlay */
+.watch-party-map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+/* Pulsing animation for user marker ring */
+@keyframes mapPulseRing {
+  0% { opacity: 0.6; }
+  50% { opacity: 0; }
+  100% { opacity: 0.6; }
+}
+
+/* Touch improvements for mobile */
+.watch-party-map .leaflet-interactive {
+  cursor: pointer;
+}
+
+/* Ensure map container doesn't cause overflow */
+.leaflet-container {
+  font-family: inherit;
+}

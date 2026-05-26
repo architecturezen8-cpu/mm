@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Page {
+  id        String   @id
+  title     String
+  slug      String
+  status    String   @default("published")
+  content   String   @default("{}")
+  tabs      String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NavItem {
+  id         String  @id
+  label      String
+  href       String
+  position   Int     @default(0)
+  isVisible  Boolean @default(true)
+  isExternal Boolean @default(false)
+}
+
+model Section {
+  id          String   @id
+  pageId      String   @default("home")
+  type        String   @default("text")
+  title       String   @default("")
+  content     String   @default("{}")
+  position    Int      @default(0)
+  isVisible   Boolean  @default(true)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SiteSetting {
+  key     String @id
+  content String @default("{}")
+}
