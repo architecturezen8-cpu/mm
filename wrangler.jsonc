@@ -1,14 +1,97 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "thomians-media-cms",
   "main": ".open-next/worker.js",
-  "compatibility_date": "2025-03-25",
-  "compatibility_flags": ["nodejs_compat"],
+  "name": "thomians-media-cms",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "observability": {
-    "enabled": true
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "thomians-voting",
+      "database_id": "a4abd13e-4e59-4cc8-b0b4-3dece0f23497"
+    }
+  ],
+
+  // ─── KV Namespaces ───────────────────────────────────────────────
+  // SETUP FROM CLOUDFLARE DASHBOARD:
+  //   1. Go to Workers & Pages → KV
+  //   2. Click "Create a namespace"
+  //   3. Name it "botg-baked-data" → copy the ID below
+  //   4. Create another named "botg-vote-queue" → copy the ID below
+  //
+  // OR via CLI:
+  //   npx wrangler kv namespace create BAKED_DATA
+  //   npx wrangler kv namespace create VOTE_QUEUE
+  //
+  // Then replace the placeholder IDs below with the real namespace IDs.
+  // VOTING WILL NOT WORK until VOTE_QUEUE is created!
+  // PUBLISH will not persist across restarts until BAKED_DATA is created!
+  "kv_namespaces": [
+    {
+      "binding": "BAKED_DATA",
+      "id": "0b8177f696154161a06066cf2d30edf0"
+    },
+    {
+      "binding": "VOTE_QUEUE",
+      "id": "725137b809ae4eb191bdc36e6da169e0"
+    },
+
+    // ─── Music KV — background songs stored as KV values (max 25MB/key) ──
+    // npx wrangler kv namespace create MUSIC
+    // Then replace the placeholder ID below
+    {
+      "binding": "MUSIC",
+      "id": "5aab3e12e7fa40ae8ff1e297f8b871a4"
+    },
+
+    // ─── Viewer Map KV — country counts for watch party map ──
+    // npx wrangler kv namespace create VIEWER_MAP
+    // Then replace the placeholder ID below
+    {
+      "binding": "VIEWER_MAP",
+      "id": "7652a078eba04133b70547ea501ba632"
+    },
+
+    // ─── Push Subscriptions KV — browser push notification subscriptions ──
+    // npx wrangler kv namespace create PUSH_SUBS
+    // Then replace the placeholder ID below
+    {
+      "binding": "PUSH_SUBS",
+      "id": "54db72df8749488e8d6b2fce7e5389f7"
+    }
+  ],
+
+  // ─── Environment Variables (Cloudflare Workers bindings) ───────────
+  // These are available at runtime via getCloudflareContext().env
+  // ONLY put non-secret values here. Secrets MUST be set via:
+  //   Cloudflare Dashboard → Workers → Settings → Variables (Encrypt = true)
+  //   OR: npx wrangler secret put <KEY>
+  //
+  // IMPORTANT: Do NOT put Supabase keys, auth tokens, or any secrets here!
+  // The `vars` section overrides secrets set via Dashboard/wrangler secret.
+  // All env vars are set as secrets via the GitHub Actions deploy workflow.
+  "vars": {
+    "NEXT_PUBLIC_MATCH_ID": "match_001"
   }
+
+  // ─── Secrets (set via Cloudflare Dashboard or wrangler secret put) ──
+  // These are NOT inlined in the code — they are encrypted at rest.
+  // The deploy workflow sets these automatically from GitHub Secrets.
+  //
+  // Set via CLI (or the workflow does it for you):
+  //   npx wrangler secret put NEXTAUTH_SECRET
+  //   npx wrangler secret put NEXT_PUBLIC_SUPABASE_URL
+  //   npx wrangler secret put NEXT_PUBLIC_SUPABASE_ANON_KEY
+  //   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+  //   npx wrangler secret put VAPID_PUBLIC_KEY
+  //   npx wrangler secret put VAPID_PRIVATE_KEY
+  //   npx wrangler secret put GOOGLE_CLIENT_ID
+  //   npx wrangler secret put GOOGLE_CLIENT_SECRET
+  //   npx wrangler secret put ADMIN_ALLOWED_EMAILS
+  //   npx wrangler secret put TURSO_DATABASE_URL
+  //   npx wrangler secret put TURSO_AUTH_TOKEN
 }
