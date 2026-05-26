@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent, getPhotoFilter } from './types';
+import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent, getPhotoFilter, CARD_TEMPLATES, STICKER_BADGES } from './types';
 
 interface FanCardPortraitProps {
   data: FanCardData;
@@ -19,6 +19,14 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
     const hashtag = `#${displayName.toUpperCase().replace(/\s+/g, '')}`;
     const text = { ...DEFAULT_FAN_CARD_TEXT, ...textContent };
     const cheersText = data.school === 'gsc' ? text.gsc_cheers : text.stc_cheers;
+    const template = CARD_TEMPLATES[data.template] || CARD_TEMPLATES['gold-classic'];
+    const stickerText = STICKER_BADGES[data.sticker]?.text || '';
+    const titleTweaks = {
+      classic: { line1: 1, line2: 1, spacing: 1 },
+      luxury: { line1: 0.95, line2: 1.08, spacing: 1.12 },
+      sport: { line1: 1.05, line2: 1.08, spacing: 0.82 },
+      minimal: { line1: 0.9, line2: 0.92, spacing: 1.25 },
+    }[data.textStyle] || { line1: 1, line2: 1, spacing: 1 };
 
     // Use data URL for background if available (for html2canvas download)
     const bgSrc = bgDataUrl || bgPath;
@@ -32,9 +40,9 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
           width: 440,
           height: 690,
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          border: template.border,
           borderRadius: 24,
-          boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
+          boxShadow: template.shadow,
           overflow: 'hidden',
           fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
           boxSizing: 'border-box',
@@ -55,6 +63,27 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             zIndex: 0,
           }}
         />
+
+        {stickerText && (
+          <div
+            style={{
+              position: 'absolute',
+              right: 24,
+              top: 26,
+              zIndex: 3,
+              padding: '5px 9px',
+              border: '1px solid rgba(255,195,0,0.42)',
+              background: 'rgba(0,0,0,0.28)',
+              color: '#FFC300',
+              fontSize: 7.5,
+              fontWeight: 800,
+              letterSpacing: 1.4,
+              textTransform: 'uppercase' as const,
+            }}
+          >
+            {stickerText}
+          </div>
+        )}
 
         {/* Dark Vignette Overlay */}
         <div
@@ -151,7 +180,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 color: '#f7b717',
                 fontSize: 8.5,
                 fontWeight: 800,
-                letterSpacing: 3.6,
+                letterSpacing: 3.6 * titleTweaks.spacing,
                 marginBottom: 6,
                 textShadow: '0 2px 8px rgba(0, 0, 0, 0.55)',
               }}
@@ -161,10 +190,10 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             <div
               style={{
                 color: '#ffffff',
-                fontSize: 27,
+                fontSize: 27 * titleTweaks.line1,
                 fontWeight: 900,
                 lineHeight: 0.96,
-                letterSpacing: 1.5,
+                letterSpacing: 1.5 * titleTweaks.spacing,
                 textShadow: '0 5px 14px rgba(0, 0, 0, 0.7)',
               }}
             >
@@ -173,7 +202,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             <div
               style={{
                 color: '#FFC300',
-                fontSize: 36,
+                fontSize: 36 * titleTweaks.line2,
                 fontWeight: 900,
                 lineHeight: 1.08,
                 letterSpacing: 3.6,
@@ -311,6 +340,23 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 </>
               )}
             </div>
+            {data.fanMessage && (
+              <div
+                style={{
+                  marginTop: 6,
+                  color: 'rgba(255,195,0,0.78)',
+                  fontSize: 8.5,
+                  fontWeight: 700,
+                  letterSpacing: 1.2,
+                  textTransform: 'uppercase' as const,
+                  whiteSpace: 'nowrap' as const,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {data.fanMessage.slice(0, 34)}
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -386,7 +432,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   letterSpacing: 1,
                 }}
               >
-                {text.website}
+                {text.website}{data.cardId ? ` · ${data.cardId}` : ''}
               </span>
             </div>
           </div>

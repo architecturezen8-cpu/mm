@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent, getPhotoFilter } from './types';
+import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent, getPhotoFilter, CARD_TEMPLATES, STICKER_BADGES } from './types';
 
 interface FanCardLandscapeProps {
   data: FanCardData;
@@ -19,6 +19,14 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
     const hashtag = `#${displayName.toUpperCase().replace(/\s+/g, '')}`;
     const text = { ...DEFAULT_FAN_CARD_TEXT, ...textContent };
     const cheersText = data.school === 'gsc' ? text.gsc_cheers : text.stc_cheers;
+    const template = CARD_TEMPLATES[data.template] || CARD_TEMPLATES['gold-classic'];
+    const stickerText = STICKER_BADGES[data.sticker]?.text || '';
+    const titleTweaks = {
+      classic: { line1: 1, line2: 1, spacing: 1 },
+      luxury: { line1: 0.95, line2: 1.08, spacing: 1.12 },
+      sport: { line1: 1.05, line2: 1.08, spacing: 0.82 },
+      minimal: { line1: 0.9, line2: 0.92, spacing: 1.25 },
+    }[data.textStyle] || { line1: 1, line2: 1, spacing: 1 };
 
     // Use data URL for background if available (for html2canvas download)
     const bgSrc = bgDataUrl || bgPath;
@@ -32,9 +40,9 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
           width: 720,
           height: 440,
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          border: template.border,
           borderRadius: 24,
-          boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)',
+          boxShadow: template.shadow,
           overflow: 'hidden',
           fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
           boxSizing: 'border-box',
@@ -55,6 +63,27 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             zIndex: 0,
           }}
         />
+
+        {stickerText && (
+          <div
+            style={{
+              position: 'absolute',
+              right: 26,
+              top: 24,
+              zIndex: 3,
+              padding: '5px 9px',
+              border: '1px solid rgba(255,195,0,0.42)',
+              background: 'rgba(0,0,0,0.28)',
+              color: '#FFC300',
+              fontSize: 7.5,
+              fontWeight: 800,
+              letterSpacing: 1.4,
+              textTransform: 'uppercase' as const,
+            }}
+          >
+            {stickerText}
+          </div>
+        )}
 
         {/* Dark Vignette Overlay — left-to-right */}
         <div
@@ -199,10 +228,10 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   color: '#ffffff',
-                  fontSize: 21,
+                  fontSize: 21 * titleTweaks.line1,
                   fontWeight: 900,
                   lineHeight: 1,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.2 * titleTweaks.spacing,
                   textShadow: '0 4px 12px rgba(0, 0, 0, 0.65)',
                 }}
               >
@@ -211,10 +240,10 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               <div
                 style={{
                   color: '#FFC300',
-                  fontSize: 34,
+                  fontSize: 34 * titleTweaks.line2,
                   fontWeight: 900,
                   lineHeight: 1.08,
-                  letterSpacing: 3,
+                  letterSpacing: 3 * titleTweaks.spacing,
                   paddingBottom: 5,
                   textShadow: '0 4px 14px rgba(0, 0, 0, 0.75), 0 0 18px rgba(255, 195, 0, 0.2)',
                 }}
@@ -280,6 +309,12 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     {data.batch}
                   </>
                 )}
+                {data.fanMessage && (
+                  <>
+                    <br />
+                    <span style={{ color: 'rgba(255,195,0,0.78)', fontSize: 8.5, fontWeight: 700 }}>{data.fanMessage.slice(0, 28)}</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -342,7 +377,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     letterSpacing: 1,
                   }}
                 >
-                  {text.website}
+                  {text.website}{data.cardId ? ` · ${data.cardId}` : ''}
                 </span>
               </div>
             </div>

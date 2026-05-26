@@ -15,7 +15,13 @@ import {
   DEFAULT_FAN_CARD,
   DEFAULT_FAN_CARD_TEXT,
   PHOTO_FILTER_PRESETS,
+  TEXT_STYLE_PRESETS,
+  CARD_TEMPLATES,
+  STICKER_BADGES,
   PhotoFilterPreset,
+  TextStylePreset,
+  CardTemplate,
+  StickerBadge,
   getPhotoFilter,
 } from './types';
 import FanCardPortrait from './FanCardPortrait';
@@ -90,7 +96,17 @@ function getFanShareUrl(data: FanCardData): string {
   url.searchParams.set('school', data.school);
   url.searchParams.set('bg', data.bgColor);
   if (data.batch.trim()) url.searchParams.set('batch', data.batch.trim());
+  if (data.cardId) url.searchParams.set('id', data.cardId);
+  if (data.fanMessage.trim()) url.searchParams.set('msg', data.fanMessage.trim());
   return url.toString();
+}
+
+function createFanCardId(): string {
+  return `FAN-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+}
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
 }
 
 /* ── Preview scale hook ── */
@@ -134,6 +150,9 @@ export default function FanCardGenerator() {
   const [shareSuccess, setShareSuccess] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [showPhotoControls, setShowPhotoControls] = useState(false);
+  const [downloadScale, setDownloadScale] = useState<1 | 2 | 3>(2);
+  const [recentCards, setRecentCards] = useState<FanCardData[]>([]);
+  const dragState = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const rawFanCardText = useSectionContent('legacy-fan-card', DEFAULT_FAN_CARD_TEXT);
   const fanCardText = {
     event_overline: rawFanCardText.event_overline || DEFAULT_FAN_CARD_TEXT.event_overline,
@@ -154,6 +173,43 @@ export default function FanCardGenerator() {
   const updateCard = useCallback((updates: Partial<FanCardData>) => {
     setCardData((prev) => ({ ...prev, ...updates }));
   }, []);
+
+  useEffect(() => {
+    setCardData((prev) => (prev.cardId ? prev : { ...prev, cardId: createFanCardId() }));
+    try {
+      const saved = localStorage.getItem('fan-card-history');
+      if (saved) setRecentCards(JSON.parse(saved).slice(0, 5));
+    } catch {
+      setRecentCards([]);
+    }
+  }, []);
+
+  const saveToHistory = useCallback((data: FanCardData) => {
+    try {
+      const next = [data, ...recentCards.filter((c) => c.cardId !== data.cardId)].slice(0, 5);
+      setRecentCards(next);
+      localStorage.setItem('fan-card-history', JSON.stringify(next));
+    } catch {
+      // localStorage may be unavailable; ignore silently.
+    }
+  }, [recentCards]);
+
+  const randomizeDesign = useCallback(() => {
+    const bgs: BgColor[] = ['golden', 'blue', 'red'];
+    const filters: PhotoFilterPreset[] = ['original', 'golden', 'cinematic', 'cool', 'mono'];
+    const templates = Object.keys(CARD_TEMPLATES) as CardTemplate[];
+    const textStyles = Object.keys(TEXT_STYLE_PRESETS) as TextStylePreset[];
+    const stickers = Object.keys(STICKER_BADGES).filter((s) => s !== 'none') as StickerBadge[];
+    updateCard({
+      bgColor: bgs[Math.floor(Math.random() * bgs.length)],
+      photoFilterPreset: filters[Math.floor(Math.random() * filters.length)],
+      template: templates[Math.floor(Math.random() * templates.length)],
+      textStyle: textStyles[Math.floor(Math.random() * textStyles.length)],
+      sticker: stickers[Math.floor(Math.random() * stickers.length)],
+      cardId: createFanCardId(),
+    });
+  }, [updateCard]);
+
 
   /* ── QR Code generation ── */
   useEffect(() => {
@@ -198,7 +254,7 @@ export default function FanCardGenerator() {
 
   /* ── Reset handler ── */
   const handleReset = useCallback(() => {
-    setCardData(DEFAULT_FAN_CARD);
+    setCardData({ ...DEFAULT_FAN_CARD, cardId: createFanCardId() });
     setDownloadSuccess(false);
     setShareSuccess(false);
     setShowPhotoControls(false);
@@ -242,7 +298,7 @@ export default function FanCardGenerator() {
       // Capture the hidden off-screen card with html-to-image.
       // This preserves CSS layout more accurately than html2canvas for graphics-heavy cards.
       const dataUrl = await toPng(el, {
-        pixelRatio: 2,
+        pixelRatio: downloadScale,
         cacheBust: true,
         width,
         height,
@@ -259,6 +315,7 @@ export default function FanCardGenerator() {
       link.download = `fancard-${safeName}-${cardData.orientation}.png`;
       link.href = dataUrl;
       link.click();
+      saveToHistory(cardData);
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (err) {
@@ -270,7 +327,7 @@ export default function FanCardGenerator() {
       });
       setIsDownloading(false);
     }
-  }, [cardData.orientation, cardData.name, cardData.bgColor, cardData.school]);
+  }, [cardData, downloadScale, saveToHistory]);
 
   const handleShare = useCallback(async () => {
     if (!cardData.name.trim()) return;
@@ -302,6 +359,89 @@ export default function FanCardGenerator() {
       }
     }
   }, [cardData]);
+
+  const handleShareImage = useCallback(async () => {
+    if (!cardData.name.trim()) return;
+    const renderRef = cardData.orientation === 'portrait' ? renderPortraitRef : renderLandscapeRef;
+    const el = renderRef.current;
+    if (!el) return;
+
+    let imgs: HTMLImageElement[] = [];
+    let origSrcs: string[] = [];
+    setIsDownloading(true);
+    try {
+      const [bgDataUrl, logoDataUrl] = await Promise.all([
+        toDataUrl(BG_PATHS[cardData.bgColor]),
+        toDataUrl(SCHOOL_INFO[cardData.school].logo),
+      ]);
+      imgs = Array.from(el.querySelectorAll('img'));
+      origSrcs = [];
+      imgs.forEach((img, i) => {
+        origSrcs[i] = img.src;
+        if (img.dataset.fancardBg === 'true') img.src = bgDataUrl;
+        if (img.dataset.fancardLogo === 'true') img.src = logoDataUrl;
+      });
+      await waitForImages(el);
+      await document.fonts?.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+      const width = cardData.orientation === 'portrait' ? 440 : 720;
+      const height = cardData.orientation === 'portrait' ? 690 : 440;
+      const dataUrl = await toPng(el, {
+        pixelRatio: downloadScale,
+        cacheBust: true,
+        width,
+        height,
+        backgroundColor: undefined,
+        style: { width: `${width}px`, height: `${height}px`, transform: 'none' },
+      });
+
+      const blob = await (await fetch(dataUrl)).blob();
+      const safeName = (cardData.name || 'fan').replace(/\s+/g, '-').toLowerCase();
+      const file = new File([blob], `fancard-${safeName}-${cardData.orientation}.png`, { type: 'image/png' });
+      const nav = navigator as Navigator & { canShare?: (data: ShareData) => boolean };
+      if (navigator.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
+        await navigator.share({
+          title: 'Battle of the Golds Fan Card',
+          text: 'Check out my Battle of the Golds fan card',
+          files: [file],
+        });
+      } else {
+        const link = document.createElement('a');
+        link.download = file.name;
+        link.href = dataUrl;
+        link.click();
+      }
+      saveToHistory(cardData);
+    } catch (err) {
+      console.error('Share image failed:', err);
+    } finally {
+      imgs.forEach((img, i) => {
+        if (origSrcs[i]) img.src = origSrcs[i];
+      });
+      setIsDownloading(false);
+    }
+  }, [cardData, downloadScale, saveToHistory]);
+
+  const startPhotoDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!cardData.photoUrl) return;
+    dragState.current = { x: e.clientX, y: e.clientY, ox: cardData.photoOffsetX, oy: cardData.photoOffsetY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }, [cardData.photoOffsetX, cardData.photoOffsetY, cardData.photoUrl]);
+
+  const movePhotoDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current || !cardData.photoUrl) return;
+    const dx = (e.clientX - dragState.current.x) / Math.max(previewScale, 0.1);
+    const dy = (e.clientY - dragState.current.y) / Math.max(previewScale, 0.1);
+    updateCard({
+      photoOffsetX: clamp(dragState.current.ox + dx, -50, 50),
+      photoOffsetY: clamp(dragState.current.oy + dy, -50, 50),
+    });
+  }, [cardData.photoUrl, previewScale, updateCard]);
+
+  const endPhotoDrag = useCallback(() => {
+    dragState.current = null;
+  }, []);
 
   const school = SCHOOL_INFO[cardData.school];
 
@@ -503,6 +643,90 @@ export default function FanCardGenerator() {
             </Card>
           </motion.div>
 
+          {/* Personalization */}
+          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
+            <Card className="p-3 sm:p-4">
+              <div className="card-title text-[10px] sm:text-xs">
+                <span className="icon"><Sparkles className="w-3 h-3" /></span>
+                Style / Badge / Message
+              </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[8px] text-text-muted uppercase tracking-wider mb-1">Template</label>
+                    <select
+                      value={cardData.template}
+                      onChange={(e) => updateCard({ template: e.target.value as CardTemplate })}
+                      className="w-full bg-lux-elevated border border-lux-border px-2 py-2 text-[10px] text-text-primary focus:border-gold/50 focus:outline-none"
+                    >
+                      {(Object.keys(CARD_TEMPLATES) as CardTemplate[]).map((key) => <option key={key} value={key}>{CARD_TEMPLATES[key].label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[8px] text-text-muted uppercase tracking-wider mb-1">Text Style</label>
+                    <select
+                      value={cardData.textStyle}
+                      onChange={(e) => updateCard({ textStyle: e.target.value as TextStylePreset })}
+                      className="w-full bg-lux-elevated border border-lux-border px-2 py-2 text-[10px] text-text-primary focus:border-gold/50 focus:outline-none"
+                    >
+                      {(Object.keys(TEXT_STYLE_PRESETS) as TextStylePreset[]).map((key) => <option key={key} value={key}>{TEXT_STYLE_PRESETS[key].label}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[8px] text-text-muted uppercase tracking-wider mb-1">Sticker</label>
+                    <select
+                      value={cardData.sticker}
+                      onChange={(e) => updateCard({ sticker: e.target.value as StickerBadge })}
+                      className="w-full bg-lux-elevated border border-lux-border px-2 py-2 text-[10px] text-text-primary focus:border-gold/50 focus:outline-none"
+                    >
+                      {(Object.keys(STICKER_BADGES) as StickerBadge[]).map((key) => <option key={key} value={key}>{STICKER_BADGES[key].label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[8px] text-text-muted uppercase tracking-wider mb-1">Download Size</label>
+                    <select
+                      value={downloadScale}
+                      onChange={(e) => setDownloadScale(parseInt(e.target.value, 10) as 1 | 2 | 3)}
+                      className="w-full bg-lux-elevated border border-lux-border px-2 py-2 text-[10px] text-text-primary focus:border-gold/50 focus:outline-none"
+                    >
+                      <option value={1}>Standard 1×</option>
+                      <option value={2}>HD 2×</option>
+                      <option value={3}>Ultra 3×</option>
+                    </select>
+                  </div>
+                </div>
+                <input
+                  value={cardData.fanMessage}
+                  maxLength={34}
+                  onChange={(e) => updateCard({ fanMessage: e.target.value })}
+                  placeholder="Short fan message (optional)"
+                  className="w-full bg-lux-elevated border border-lux-border px-3 py-2 text-xs text-text-primary placeholder:text-text-muted/30 focus:border-gold/50 focus:outline-none"
+                />
+                <div className="flex gap-2">
+                  <input
+                    value={cardData.cardId}
+                    onChange={(e) => updateCard({ cardId: e.target.value.toUpperCase().slice(0, 18) })}
+                    className="flex-1 bg-lux-elevated border border-lux-border px-3 py-2 text-[10px] text-text-primary focus:border-gold/50 focus:outline-none uppercase tracking-wider"
+                  />
+                  <button onClick={() => updateCard({ cardId: createFanCardId() })} className="px-3 border border-lux-border text-[9px] text-text-muted hover:text-gold hover:border-gold/30 uppercase tracking-wider">New ID</button>
+                  <button onClick={randomizeDesign} className="px-3 border border-gold/30 bg-gold/5 text-[9px] text-gold hover:bg-gold/10 uppercase tracking-wider">Random</button>
+                </div>
+                {recentCards.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-2 border-t border-lux-border/50">
+                    <span className="text-[8px] uppercase tracking-wider text-text-muted mr-1">Recent</span>
+                    {recentCards.map((card) => (
+                      <button key={card.cardId} onClick={() => setCardData({ ...DEFAULT_FAN_CARD, ...card })} className="px-2 py-1 border border-lux-border text-[8px] text-text-muted hover:text-gold hover:border-gold/30">
+                        {card.name || card.cardId}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+
           {/* Photo Upload + Zoom/Pan Controls */}
           <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
             <Card className="p-3 sm:p-4">
@@ -627,6 +851,16 @@ export default function FanCardGenerator() {
                           <Palette className="w-3 h-3 text-gold/70" />
                           <span className="text-[9px] text-text-muted uppercase tracking-wider">Photo Color Filter</span>
                         </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="rounded border border-lux-border overflow-hidden bg-lux-elevated">
+                            <div className="h-16 bg-cover bg-center" style={{ backgroundImage: `url(${cardData.photoUrl})` }} />
+                            <div className="text-[7px] text-center text-text-muted uppercase tracking-wider py-1">Before</div>
+                          </div>
+                          <div className="rounded border border-gold/30 overflow-hidden bg-lux-elevated">
+                            <div className="h-16 bg-cover bg-center" style={{ backgroundImage: `url(${cardData.photoUrl})`, filter: getPhotoFilter(cardData) }} />
+                            <div className="text-[7px] text-center text-gold uppercase tracking-wider py-1">After</div>
+                          </div>
+                        </div>
                         <div className="grid grid-cols-3 gap-1.5">
                           {(['original', 'golden', 'cinematic', 'cool', 'mono', 'custom'] as PhotoFilterPreset[]).map((preset) => {
                             const selected = cardData.photoFilterPreset === preset;
@@ -741,6 +975,14 @@ export default function FanCardGenerator() {
               )}
               {shareSuccess ? 'Link Copied / Shared' : 'Share Card'}
             </button>
+            <button
+              onClick={handleShareImage}
+              disabled={isDownloading || !cardData.name.trim()}
+              className="w-full h-10 sm:h-11 border border-lux-border text-text-muted hover:text-gold hover:border-gold/30 disabled:opacity-40 transition-all duration-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
+            >
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
+              Share Image / Save
+            </button>
           </motion.div>
 
           <div className="p-2.5 sm:p-3 rounded-lg bg-lux-elevated/50 border border-lux-border/50">
@@ -766,11 +1008,17 @@ export default function FanCardGenerator() {
               >
                 <div
                   className="origin-top-left"
+                  onPointerDown={startPhotoDrag}
+                  onPointerMove={movePhotoDrag}
+                  onPointerUp={endPhotoDrag}
+                  onPointerCancel={endPhotoDrag}
                   style={{
                     width: cardData.orientation === 'portrait' ? 440 : 720,
                     height: cardData.orientation === 'portrait' ? 690 : 440,
                     transform: `scale(${previewScale})`,
                     transformOrigin: 'top left',
+                    cursor: cardData.photoUrl ? 'grab' : 'default',
+                    touchAction: 'none',
                   }}
                 >
                   {cardData.orientation === 'portrait' ? (

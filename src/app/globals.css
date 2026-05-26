@@ -1428,3 +1428,52 @@ body::after {
   .player-card-role-row { padding: 2px 6px; letter-spacing: 1.2px; }
   .player-card-portrait::before { inset: 6px; }
 }
+
+/* Playing XI card final alignment polish — UI only, no data/backend impact */
+.player-card-portrait {
+  isolation: isolate;
+  min-height: 300px;
+}
+.player-card-photo {
+  object-position: center top;
+  filter: saturate(1.05) contrast(1.03);
+}
+.player-card-info {
+  bottom: 12px;
+  padding: 0 1rem;
+  transform: translateY(0);
+  opacity: 1;
+}
+.player-card-role-row {
+  max-width: max-content;
+  min-height: 24px;
+  align-items: center;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--team-color, #FFC300) 12%, transparent);
+}
+.player-card-name {
+  margin-top: 10px;
+  margin-bottom: 3px;
+}
+.player-card-school {
+  margin-bottom: 10px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.player-card-jersey-top {
+  right: 16px;
+  top: 14px;
+  font-size: 2.15rem;
+  opacity: 0.16;
+}
+.player-card-jersey-badge {
+  min-width: 44px;
+  height: 24px;
+}
+@media (max-width: 640px) {
+  .player-card-portrait { min-height: 255px; }
+  .player-card-info { bottom: 10px; padding: 0 0.75rem; }
+  .player-card-name { margin-top: 8px; }
+  .player-card-jersey-top { font-size: 1.55rem; }
+}

@@ -2,6 +2,9 @@ export type School = 'stc' | 'gsc';
 export type BgColor = 'golden' | 'blue' | 'red';
 export type CardOrientation = 'portrait' | 'landscape';
 export type PhotoFilterPreset = 'original' | 'golden' | 'cinematic' | 'cool' | 'mono' | 'custom';
+export type TextStylePreset = 'classic' | 'luxury' | 'sport' | 'minimal';
+export type CardTemplate = 'gold-classic' | 'royal-dark' | 'stadium-glow' | 'clean-pro';
+export type StickerBadge = 'none' | 'official' | 'proud' | 'matchday' | 'batch';
 
 export interface FanCardData {
   name: string;
@@ -19,6 +22,11 @@ export interface FanCardData {
   photoSaturation: number; // 0 to 200
   photoHue: number;        // -180 to 180
   photoSepia: number;      // 0 to 100
+  textStyle: TextStylePreset;
+  template: CardTemplate;
+  sticker: StickerBadge;
+  fanMessage: string;
+  cardId: string;
 }
 
 export const SCHOOL_INFO: Record<School, { name: string; shortName: string; logo: string; cheers: string }> = {
@@ -58,6 +66,11 @@ export const DEFAULT_FAN_CARD: FanCardData = {
   photoSaturation: 100,
   photoHue: 0,
   photoSepia: 0,
+  textStyle: 'classic',
+  template: 'gold-classic',
+  sticker: 'none',
+  fanMessage: '',
+  cardId: '',
 };
 
 
@@ -104,3 +117,26 @@ export function getPhotoFilter(data: Pick<FanCardData, 'photoFilterPreset' | 'ph
     `sepia(${data.photoSepia}%)`,
   ].join(' ');
 }
+
+
+export const TEXT_STYLE_PRESETS: Record<TextStylePreset, { label: string }> = {
+  classic: { label: 'Classic' },
+  luxury: { label: 'Luxury' },
+  sport: { label: 'Sport' },
+  minimal: { label: 'Minimal' },
+};
+
+export const CARD_TEMPLATES: Record<CardTemplate, { label: string; border: string; shadow: string }> = {
+  'gold-classic': { label: 'Gold Classic', border: '1px solid rgba(255, 255, 255, 0.15)', shadow: '0 30px 60px -12px rgba(0, 0, 0, 0.8)' },
+  'royal-dark': { label: 'Royal Dark', border: '1px solid rgba(255, 195, 0, 0.35)', shadow: '0 32px 70px -14px rgba(0, 0, 0, 0.85), 0 0 28px rgba(255,195,0,0.12)' },
+  'stadium-glow': { label: 'Stadium Glow', border: '1px solid rgba(74, 126, 187, 0.38)', shadow: '0 32px 70px -14px rgba(0, 0, 0, 0.85), 0 0 30px rgba(74,126,187,0.18)' },
+  'clean-pro': { label: 'Clean Pro', border: '1px solid rgba(255, 255, 255, 0.22)', shadow: '0 26px 54px -16px rgba(0, 0, 0, 0.78)' },
+};
+
+export const STICKER_BADGES: Record<StickerBadge, { label: string; text: string }> = {
+  none: { label: 'None', text: '' },
+  official: { label: 'Official', text: 'OFFICIAL FAN' },
+  proud: { label: 'Proud', text: 'PROUD SUPPORTER' },
+  matchday: { label: 'Match Day', text: 'MATCH DAY' },
+  batch: { label: 'Batch', text: 'BATCH PRIDE' },
+};
