@@ -510,6 +510,11 @@ const SECTION_FIELDS: Record<string, FieldDef[]> = {
   ],
 
   // ─── WEATHER SUB-TAB ───
+  'weather-advisory': [
+    tf('heading', 'Section Heading'),
+    dtf('match_date', 'Advisory Match Date'),
+    tf('match_time_label', 'Match Time Label'),
+  ],
   'weather-current': [
     tf('location', 'Location'),
     nf('temp', 'Temperature (°C)'),
@@ -617,6 +622,16 @@ const SECTION_FIELDS: Record<string, FieldDef[]> = {
   'community-ball': [
     tf('heading', 'Section Title'),
     tf('ball_description', 'Ball Description Text'),
+  ],
+  'legacy-fan-card': [
+    tf('heading', 'Section Title'),
+    tf('event_overline', 'Card Title Overline'),
+    tf('title_line1', 'Card Title Line 1'),
+    tf('title_line2', 'Card Title Line 2'),
+    tf('stc_cheers', 'STC Cheers Text'),
+    tf('gsc_cheers', 'Science Cheers Text'),
+    tf('website', 'Footer Website'),
+    imf('branding_image', 'Thomians Media Wordmark'),
   ],
   'legacy-watch-party': [
     tf('heading', 'Section Title'),

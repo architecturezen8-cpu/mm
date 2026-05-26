@@ -107,11 +107,11 @@ export default function GalleryTab() {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>('all');
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
   const [imageDimensions, setImageDimensions] = useState<Record<number, { w: number; h: number }>>({});
-  const [isRotated, setIsRotated] = useState(false);
+  const [rotation, setRotation] = useState(0);
 
   // Reset rotation when lightbox item changes
   useEffect(() => {
-    setIsRotated(false);
+    setRotation(0);
   }, [lightboxItem]);
 
   const content = useSectionContent('gallery-main', DEFAULT_GALLERY_CONTENT);
@@ -139,7 +139,7 @@ export default function GalleryTab() {
   });
 
   const handleRotate = useCallback(() => {
-    setIsRotated(prev => !prev);
+    setRotation(prev => (prev + 90) % 360);
   }, []);
 
   const closeLightbox = useCallback(() => {
@@ -319,7 +319,7 @@ export default function GalleryTab() {
                 className="flex flex-col items-center max-w-[95vw] max-h-[90vh]"
               >
                 {lightboxItem.image ? (
-                  <div className="relative flex items-center justify-center w-full h-full" style={{ transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)', transform: isRotated ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                  <div className="relative flex items-center justify-center w-full h-full" style={{ transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)', transform: `rotate(${rotation}deg)` }}>
                     {/* Gold border glow */}
                     <div className="absolute -inset-[1px] bg-gradient-to-b from-gold/20 via-transparent to-gold/10 rounded-sm pointer-events-none" />
                     <img
@@ -340,7 +340,7 @@ export default function GalleryTab() {
                   </div>
                 )}
                 {/* Label below image */}
-                <div className="mt-5 text-center pointer-events-auto" style={{ transition: 'transform 0.4s', transform: isRotated ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                <div className="mt-5 text-center pointer-events-auto">
                   <div className="w-8 h-[1.5px] bg-gold/40 mx-auto mb-3" />
                   <p className="text-sm font-semibold text-white/90 tracking-wide">{lightboxItem.label}</p>
                   <p className="text-[9px] uppercase tracking-[3px] text-white/30 mt-1.5 font-medium">

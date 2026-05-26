@@ -9,6 +9,7 @@ import { useSectionContent, getContentString, getContentNumber } from '@/lib/use
 interface ForecastDay {
   day: string;
   date: string;
+  isoDate?: string;
   weatherCode: number;
   condition: string;
   high: number;
@@ -211,6 +212,12 @@ const offlineWeather: CurrentWeather = {
 };
 
 // ─── Venue defaults ───
+const defaultAdvisoryContent = {
+  heading: 'Match Day Advisory',
+  match_date: '2026-05-15',
+  match_time_label: '09:00 SST',
+};
+
 const defaultVenueContent = {
   heading: 'Venue Conditions',
   venue: "St.Thomas' College Grounds, Matale",
@@ -229,9 +236,8 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transiti
 let cached: { current: CurrentWeather; forecast: ForecastDay[]; timestamp: number } | null = null;
 const CACHE_TTL = 10 * 60 * 1000; // 10 min cache (aligned with server CDN cache)
 
-// Match date — fetched dynamically from admin settings
+// Default match date for advisory if admin has not set one yet.
 const DEFAULT_MATCH_DATE = '2026-05-15';
-let MATCH_DATE = DEFAULT_MATCH_DATE;
 
 // ─── Advisory helper ───
 function getAdvisoryLevel(rain: number, wind: number, temp: number): { level: 'green' | 'yellow' | 'red'; title: string; text: string } {
@@ -265,23 +271,8 @@ export default function WeatherTab() {
   const [isLive, setIsLive] = useState<boolean | null>(
     (cached && Date.now() - cached.timestamp < CACHE_TTL) ? true : null
   );
-  const [matchDate, setMatchDate] = useState(DEFAULT_MATCH_DATE);
   const hasFetched = useRef(false);
 
-  // ─── Fetch match date from settings ───
-  useEffect(() => {
-    fetch('/api/admin/site-settings?t=' + Date.now())
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.countdown?.match_date) {
-          const dateStr = data.countdown.match_date;
-          // Parse "2026-05-15T09:00" → "2026-05-15"
-          setMatchDate(dateStr.split('T')[0]);
-          MATCH_DATE = dateStr.split('T')[0];
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   // ─── Fetch weather data (only if no cached data was available) ───
   useEffect(() => {
@@ -318,6 +309,7 @@ export default function WeatherTab() {
             pf.push({
               day: names[dt.getDay()],
               date: `${dt.toLocaleString('en-US',{month:'short'})} ${dt.getDate()}`,
+              isoDate: d.time[i],
               weatherCode: d.weather_code?.[i] ?? 2,
               condition: getCondition(d.weather_code?.[i] ?? 2),
               high: Math.round(d.temperature_2m_max?.[i] ?? 0),
@@ -344,8 +336,14 @@ export default function WeatherTab() {
   const isOffline = isLive === false;
   const w = current || offlineWeather;
 
-  // Find match day in forecast (dynamic date from settings)
-  const matchDayData = forecast.find(f => f.date.includes(matchDate.slice(5))) || null;
+  // ─── Match Day Advisory (admin editable) ───
+  const advisoryContent = useSectionContent('weather-advisory', { ...defaultAdvisoryContent });
+  const advisoryHeading = getContentString(advisoryContent, 'heading', defaultAdvisoryContent.heading);
+  const matchDate = getContentString(advisoryContent, 'match_date', DEFAULT_MATCH_DATE).split('T')[0];
+  const matchTimeLabel = getContentString(advisoryContent, 'match_time_label', defaultAdvisoryContent.match_time_label);
+
+  // Find match day in forecast (admin-selected date)
+  const matchDayData = forecast.find(f => f.isoDate === matchDate) || null;
   const advisory = matchDayData ? getAdvisoryLevel(matchDayData.rainProbability, matchDayData.wind, matchDayData.high) : null;
 
   // ─── Venue (admin editable) ───
@@ -371,6 +369,8 @@ export default function WeatherTab() {
       {/* ═══════════════════════════════════════════
           🏏 MATCH DAY ADVISORY — Premium Report
           ═══════════════════════════════════════════ */}
+      <EditableSection sectionId="weather-advisory" pageId="about" type="weather" title={advisoryHeading}
+        content={{ heading: advisoryHeading, match_date: matchDate, match_time_label: matchTimeLabel }}>
       <motion.div variants={item} className="relative overflow-hidden border border-gold/20">
         {/* Animated background */}
         <div className="absolute inset-0">
@@ -400,9 +400,9 @@ export default function WeatherTab() {
                 </svg>
               </div>
               <div>
-                <h2 className="text-sm font-bold text-gold uppercase tracking-[2px]">Match Day Advisory</h2>
+                <h2 className="text-sm font-bold text-gold uppercase tracking-[2px]">{advisoryHeading}</h2>
                 <p className="text-[9px] text-text-muted uppercase tracking-[1.5px] mt-0.5">
-                  111th Battle of the Golds · {matchDate} · 09:00 SST
+                  111th Battle of the Golds · {matchDate} · {matchTimeLabel}
                 </p>
               </div>
             </div>
@@ -503,6 +503,7 @@ export default function WeatherTab() {
           </div>
         </div>
       </motion.div>
+      </EditableSection>
 
       {/* ═══════════════════════════════════════════
           🌤️ CURRENT CONDITIONS

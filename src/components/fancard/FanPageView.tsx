@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { SCHOOL_INFO, BG_PATHS } from './types';
+import { SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT } from './types';
 import type { School, BgColor } from './types';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowLeft, User } from 'lucide-react';
+import { useSectionContent } from '@/lib/useSectionContent';
 import { useRouter } from 'next/navigation';
 
 interface FanPageViewProps {
@@ -19,6 +20,17 @@ export default function FanPageView({ name, school, batch, bgColor }: FanPageVie
   const schoolInfo = SCHOOL_INFO[school];
   const bgPath = BG_PATHS[bgColor];
   const hashtag = `#${name.toUpperCase().replace(/\s+/g, '')}`;
+  const rawFanCardText = useSectionContent('legacy-fan-card', DEFAULT_FAN_CARD_TEXT);
+  const fanCardText = {
+    event_overline: rawFanCardText.event_overline || DEFAULT_FAN_CARD_TEXT.event_overline,
+    title_line1: rawFanCardText.title_line1 || DEFAULT_FAN_CARD_TEXT.title_line1,
+    title_line2: rawFanCardText.title_line2 || DEFAULT_FAN_CARD_TEXT.title_line2,
+    stc_cheers: rawFanCardText.stc_cheers || DEFAULT_FAN_CARD_TEXT.stc_cheers,
+    gsc_cheers: rawFanCardText.gsc_cheers || DEFAULT_FAN_CARD_TEXT.gsc_cheers,
+    website: rawFanCardText.website || DEFAULT_FAN_CARD_TEXT.website,
+    branding_image: rawFanCardText.branding_image || DEFAULT_FAN_CARD_TEXT.branding_image,
+  };
+  const cheersText = school === 'gsc' ? fanCardText.gsc_cheers : fanCardText.stc_cheers;
 
   return (
     <div className="min-h-screen bg-lux-bg flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -71,18 +83,30 @@ export default function FanPageView({ name, school, batch, bgColor }: FanPageVie
         </motion.div>
 
         {/* Title */}
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-3xl sm:text-4xl font-extrabold text-text-primary uppercase tracking-wider mb-2"
-          style={{
-            fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-            textShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
-          }}
+          className="uppercase mb-3"
+          style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}
         >
-          Battle Of The Golds
-        </motion.h1>
+          <div className="text-[10px] sm:text-xs font-extrabold tracking-[5px] text-gold/90 mb-2">
+            {fanCardText.event_overline}
+          </div>
+          <div className="text-2xl sm:text-4xl font-black tracking-[2px] text-text-primary leading-none" style={{ textShadow: '0 5px 14px rgba(0, 0, 0, 0.7)' }}>
+            {fanCardText.title_line1}
+          </div>
+          <div
+            className="text-4xl sm:text-6xl font-black tracking-[6px] leading-none"
+            style={{
+              color: '#FFC300',
+              textShadow: '0 5px 16px rgba(0, 0, 0, 0.75), 0 0 26px rgba(255, 195, 0, 0.22)',
+            }}
+          >
+            {fanCardText.title_line2}
+          </div>
+          <div className="w-32 h-px mx-auto mt-4" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.8), transparent)' }} />
+        </motion.div>
 
         {/* Fan Name Hashtag */}
         <motion.div
@@ -104,10 +128,10 @@ export default function FanPageView({ name, school, batch, bgColor }: FanPageVie
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.45 }}
-          className="text-xl sm:text-2xl font-bold text-gold uppercase tracking-wider mb-4"
-          style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
+          className="inline-block text-lg sm:text-xl font-extrabold text-white uppercase tracking-[2px] mb-4 px-5 py-2 border-y border-gold/40 bg-gold/10"
+          style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5), 0 0 16px rgba(255,195,0,0.2)' }}
         >
-          {schoolInfo.cheers}
+          {cheersText}
         </motion.p>
 
         {/* School + Batch */}
@@ -147,15 +171,7 @@ export default function FanPageView({ name, school, batch, bgColor }: FanPageVie
           transition={{ delay: 0.65 }}
           className="flex items-center justify-center gap-2 mb-6"
         >
-          <span className="text-text-muted text-xs uppercase tracking-wider">
-            <span className="font-bold">THOMIANS&apos;</span>
-            <span className="font-light ml-1">MEDIA</span>
-          </span>
-          <div className="flex w-4 h-2.5" style={{ transform: 'skewX(25deg)' }}>
-            <div className="w-1/3 h-full bg-[#1a3668]" />
-            <div className="w-1/3 h-full bg-[#4a7ebb]" />
-            <div className="w-1/3 h-full bg-[#f7b717]" />
-          </div>
+          <img src={fanCardText.branding_image} alt="Thomians' Media" className="w-36 h-auto opacity-70" />
         </motion.div>
 
         {/* CTA - Create your own card */}
@@ -184,7 +200,7 @@ export default function FanPageView({ name, school, batch, bgColor }: FanPageVie
           transition={{ delay: 0.8 }}
           className="mt-6 text-text-muted/30 text-xs tracking-widest"
         >
-          www.thomiansmedia.us
+          {fanCardText.website}
         </motion.p>
       </div>
     </div>

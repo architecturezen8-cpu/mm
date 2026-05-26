@@ -1,21 +1,24 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { FanCardData, SCHOOL_INFO, BG_PATHS } from './types';
+import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent } from './types';
 
 interface FanCardLandscapeProps {
   data: FanCardData;
   qrDataUrl: string;
   bgDataUrl?: string;
   logoDataUrl?: string;
+  textContent?: Partial<FanCardTextContent>;
 }
 
 const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
-  function FanCardLandscape({ data, qrDataUrl, bgDataUrl, logoDataUrl }, ref) {
+  function FanCardLandscape({ data, qrDataUrl, bgDataUrl, logoDataUrl, textContent }, ref) {
     const school = SCHOOL_INFO[data.school];
     const bgPath = BG_PATHS[data.bgColor];
     const displayName = data.name.trim() || 'YOUR NAME';
     const hashtag = `#${displayName.toUpperCase().replace(/\s+/g, '')}`;
+    const text = { ...DEFAULT_FAN_CARD_TEXT, ...textContent };
+    const cheersText = data.school === 'gsc' ? text.gsc_cheers : text.stc_cheers;
 
     // Use data URL for background if available (for html2canvas download)
     const bgSrc = bgDataUrl || bgPath;
@@ -186,7 +189,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 textAlign: 'left',
                 textTransform: 'uppercase' as const,
                 marginTop: 10,
-                marginBottom: 6,
+                marginBottom: 16,
                 fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
               }}
             >
@@ -200,7 +203,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   textShadow: '0 4px 12px rgba(0, 0, 0, 0.65)',
                 }}
               >
-                Battle Of The
+                {text.title_line1}
               </div>
               <div
                 style={{
@@ -212,7 +215,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                   textShadow: '0 4px 14px rgba(0, 0, 0, 0.75), 0 0 18px rgba(255, 195, 0, 0.2)',
                 }}
               >
-                Golds
+                {text.title_line2}
               </div>
               <div
                 style={{
@@ -225,23 +228,28 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
             </div>
 
             {/* Details: Hashtag, Cheers, School Info */}
-            <div style={{ textAlign: 'left', marginTop: 4 }}>
-              <div style={{ color: '#ffffff', fontSize: 18, fontWeight: 650, marginBottom: 6, letterSpacing: 0.5 }}>
+            <div style={{ textAlign: 'left', marginTop: 10 }}>
+              <div style={{ color: '#ffffff', fontSize: 18, fontWeight: 650, marginBottom: 11, letterSpacing: 0.5 }}>
                 {hashtag}
               </div>
               <div
                 style={{
+                  display: 'inline-block',
                   color: '#ffffff',
-                  fontSize: 15.5,
-                  fontWeight: 750,
+                  fontSize: 15,
+                  fontWeight: 800,
                   textTransform: 'uppercase' as const,
-                  letterSpacing: 1,
+                  letterSpacing: 1.2,
                   lineHeight: 1.35,
-                  marginBottom: 9,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                  marginBottom: 13,
+                  padding: '4px 12px',
+                  borderLeft: '2px solid rgba(255,195,0,0.7)',
+                  borderRight: '2px solid rgba(255,195,0,0.25)',
+                  background: 'linear-gradient(90deg, rgba(255,195,0,0.14), rgba(255,195,0,0.03), transparent)',
+                  textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 0 12px rgba(255,195,0,0.2)',
                 }}
               >
-                {school.cheers}
+                {cheersText}
               </div>
               <div
                 style={{
@@ -269,7 +277,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                 {/* Thomians' Media Branding */}
                 <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', marginTop: 20 }}>
                   <img
-                    src="/fancard/thomians-media-wordmark.png"
+                    src={text.branding_image}
                     alt="Thomians' Media"
                     width={132}
                     height={11}
@@ -283,8 +291,8 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     backgroundColor: '#ffffff',
                     padding: 4,
                     borderRadius: 6,
-                    width: 56,
-                    height: 56,
+                    width: 72,
+                    height: 72,
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -295,12 +303,12 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     <img
                       src={qrDataUrl}
                       alt="QR Code"
-                      width={48}
-                      height={48}
+                      width={64}
+                      height={64}
                       style={{ display: 'block' }}
                     />
                   ) : (
-                    <div style={{ width: 48, height: 48, backgroundColor: '#eee' }} />
+                    <div style={{ width: 64, height: 64, backgroundColor: '#eee' }} />
                   )}
                 </div>
               </div>
@@ -322,7 +330,7 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
                     letterSpacing: 1,
                   }}
                 >
-                  www.thomiansmedia.us
+                  {text.website}
                 </span>
               </div>
             </div>

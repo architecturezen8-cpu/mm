@@ -10,11 +10,11 @@ const HARDCODED_SECTIONS: Record<string, string[]> = {
   home: ['home-hero', 'home-news', 'home-battle', 'home-countdown', 'home-whoweare', 'home-portfolio', 'home-series', 'home-result'],
   live: ['live-header', 'live-currentover', 'live-batsmen', 'live-info'],
   'match-history': ['history-hero', 'history-origin', 'history-format', 'history-records', 'history-highlights', 'history-media'],
-  about: ['about-hero', 'about-whoweare', 'about-whatwedo', 'about-team', 'about-stats', 'about-social', 'about-credits', 'about-location', 'about-history', 'about-stc', 'about-gsc', 'about-records', 'about-media', 'about-contact', 'h2h-record', 'h2h-comparison', 'h2h-results', 'weather-current', 'weather-forecast', 'weather-venue', 'weather-legend'],
+  about: ['about-hero', 'about-whoweare', 'about-whatwedo', 'about-team', 'about-stats', 'about-social', 'about-credits', 'about-location', 'about-history', 'about-stc', 'about-gsc', 'about-records', 'about-media', 'about-contact', 'h2h-record', 'h2h-comparison', 'h2h-results', 'weather-current', 'weather-forecast', 'weather-advisory', 'weather-venue', 'weather-legend'],
   gallery: ['gallery-main'],
   videos: ['videos-livestream', 'videos-grid', 'videos-social'],
   'playing-xi': ['xi-sthomas', 'xi-science'],
-  community: ['community-voting', 'community-share', 'community-ball', 'legacy-watch-party'],
+  community: ['community-voting', 'community-share', 'community-ball', 'legacy-fan-card', 'legacy-watch-party'],
 };
 
 // Helper to detect video URLs and get embed URL (consistent with VideosTab)

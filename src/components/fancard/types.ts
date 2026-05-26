@@ -25,7 +25,7 @@ export const SCHOOL_INFO: Record<School, { name: string; shortName: string; logo
     name: 'Govt. Science College Matale',
     shortName: 'GSC',
     logo: '/fancard/logos/gsc.png',
-    cheers: 'Cheers To Science !',
+    cheers: 'Cheers To Sciencians !',
   },
 };
 
@@ -45,4 +45,25 @@ export const DEFAULT_FAN_CARD: FanCardData = {
   photoZoom: 1,
   photoOffsetX: 0,
   photoOffsetY: 0,
+};
+
+
+export interface FanCardTextContent {
+  event_overline: string;
+  title_line1: string;
+  title_line2: string;
+  stc_cheers: string;
+  gsc_cheers: string;
+  website: string;
+  branding_image: string;
+}
+
+export const DEFAULT_FAN_CARD_TEXT: FanCardTextContent = {
+  event_overline: 'THE LEGENDARY',
+  title_line1: 'Battle Of The',
+  title_line2: 'Golds',
+  stc_cheers: 'Cheers To Thomians !',
+  gsc_cheers: 'Cheers To Sciencians !',
+  website: 'www.thomiansmedia.us',
+  branding_image: '/fancard/thomians-media-wordmark.png',
 };

@@ -192,8 +192,10 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
         return;
       }
 
+      // Count the target day too (inclusive), so selecting match day doesn't skip that date.
+      const inclusiveDays = Math.max(1, Math.ceil(distance / (1000 * 60 * 60 * 24)));
       setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        days: inclusiveDays,
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),

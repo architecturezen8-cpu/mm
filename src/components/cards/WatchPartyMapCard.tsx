@@ -193,7 +193,8 @@ function MapDots({
   hoveredISO: string | null;
   setHoveredISO: (iso: string | null) => void;
 }) {
-  const { CircleMarker, Tooltip } = require('react-leaflet'); // eslint-disable-line @typescript-eslint/no-require-imports
+  const { CircleMarker, Tooltip, Marker } = require('react-leaflet'); // eslint-disable-line @typescript-eslint/no-require-imports
+  const L = require('leaflet'); // eslint-disable-line @typescript-eslint/no-require-imports
 
   return (
     <>
@@ -251,6 +252,21 @@ function MapDots({
           </CircleMarker>
         );
       })}
+
+      {/* Desktop country flag badges */}
+      {viewerDots.slice(0, 24).map(({ iso, latlng, isUser }: ViewerDot) => (
+        <Marker
+          key={`${iso}-flag`}
+          position={latlng}
+          interactive={false}
+          icon={L.divIcon({
+            className: 'country-flag-marker',
+            html: `<span class="${isUser ? 'is-user' : ''}">${flagEmoji(iso)}</span>`,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13],
+          })}
+        />
+      ))}
 
       {/* Pulsing ring only for the USER's dot — lightweight on mobile */}
       {viewerDots.filter(d => d.isUser).map(({ iso, radius, latlng }: ViewerDot) => (

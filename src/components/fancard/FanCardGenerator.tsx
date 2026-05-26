@@ -13,12 +13,15 @@ import {
   SCHOOL_INFO,
   BG_PATHS,
   DEFAULT_FAN_CARD,
+  DEFAULT_FAN_CARD_TEXT,
 } from './types';
 import FanCardPortrait from './FanCardPortrait';
 import FanCardLandscape from './FanCardLandscape';
 import Card from '@/components/ui/lux-card';
 import PremiumIcon from '@/components/PremiumIcon';
 import ScrollReveal from '@/components/ScrollReveal';
+import EditableSection from '@/components/admin/EditableSection';
+import { useSectionContent } from '@/lib/useSectionContent';
 import {
   Upload,
   Download,
@@ -92,9 +95,9 @@ function usePreviewScale(orientation: CardOrientation) {
 
   useEffect(() => {
     const updateScale = () => {
-      const padding = window.innerWidth < 640 ? 32 : 80;
+      const padding = window.innerWidth < 640 ? 52 : 80;
       const maxW = window.innerWidth < 640 ? window.innerWidth - padding : 460;
-      const maxH = window.innerHeight * 0.65;
+      const maxH = window.innerWidth < 640 ? window.innerHeight * 0.55 : window.innerHeight * 0.65;
       const cardW = orientation === 'portrait' ? 440 : 720;
       const cardH = orientation === 'portrait' ? 690 : 440;
       const scaleW = maxW / cardW;
@@ -127,6 +130,16 @@ export default function FanCardGenerator() {
   const [shareSuccess, setShareSuccess] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [showPhotoControls, setShowPhotoControls] = useState(false);
+  const rawFanCardText = useSectionContent('legacy-fan-card', DEFAULT_FAN_CARD_TEXT);
+  const fanCardText = {
+    event_overline: rawFanCardText.event_overline || DEFAULT_FAN_CARD_TEXT.event_overline,
+    title_line1: rawFanCardText.title_line1 || DEFAULT_FAN_CARD_TEXT.title_line1,
+    title_line2: rawFanCardText.title_line2 || DEFAULT_FAN_CARD_TEXT.title_line2,
+    stc_cheers: rawFanCardText.stc_cheers || DEFAULT_FAN_CARD_TEXT.stc_cheers,
+    gsc_cheers: rawFanCardText.gsc_cheers || DEFAULT_FAN_CARD_TEXT.gsc_cheers,
+    website: rawFanCardText.website || DEFAULT_FAN_CARD_TEXT.website,
+    branding_image: rawFanCardText.branding_image || DEFAULT_FAN_CARD_TEXT.branding_image,
+  };
 
   // Refs for HIDDEN off-screen render cards (for pixel-perfect download)
   const renderPortraitRef = useRef<HTMLDivElement>(null);
@@ -144,8 +157,8 @@ export default function FanCardGenerator() {
     if (!qrValue) return;
 
     QRCode.toDataURL(qrValue, {
-      width: 640,
-      margin: 4,
+      width: 900,
+      margin: 6,
       color: { dark: '#000000', light: '#ffffff' },
       errorCorrectionLevel: 'H',
     })
@@ -278,7 +291,8 @@ export default function FanCardGenerator() {
   const school = SCHOOL_INFO[cardData.school];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <EditableSection sectionId="legacy-fan-card" pageId="community" type="stats" title="Fan Card Generator" content={{ heading: 'Fan Card Generator', ...fanCardText }}>
+      <div className="space-y-4 sm:space-y-6">
       {/* ═══════════════════════════════════════════════════════════════
           HIDDEN OFF-SCREEN RENDER CARDS — for pixel-perfect download.
           These are at full size, NO CSS transform parent.
@@ -294,8 +308,8 @@ export default function FanCardGenerator() {
         }}
         aria-hidden="true"
       >
-        <FanCardPortrait ref={renderPortraitRef} data={cardData} qrDataUrl={qrDataUrl} />
-        <FanCardLandscape ref={renderLandscapeRef} data={cardData} qrDataUrl={qrDataUrl} />
+        <FanCardPortrait ref={renderPortraitRef} data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
+        <FanCardLandscape ref={renderLandscapeRef} data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
       </div>
 
       {/* Header */}
@@ -656,7 +670,7 @@ export default function FanCardGenerator() {
         <div className="order-1 lg:order-2">
           <div className="lg:sticky lg:top-24">
             <div className="text-text-muted/30 text-[8px] sm:text-[9px] uppercase tracking-[2px] mb-2 sm:mb-3 text-center">Live Preview</div>
-            <div className="flex items-start justify-center overflow-visible rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
+            <div className="flex items-start justify-center overflow-hidden rounded-xl bg-white/[0.02] border border-lux-border/30 p-2 sm:p-4">
               <div
                 className="relative transition-all duration-500"
                 style={{
@@ -675,9 +689,9 @@ export default function FanCardGenerator() {
                   }}
                 >
                   {cardData.orientation === 'portrait' ? (
-                    <FanCardPortrait data={cardData} qrDataUrl={qrDataUrl} />
+                    <FanCardPortrait data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
                   ) : (
-                    <FanCardLandscape data={cardData} qrDataUrl={qrDataUrl} />
+                    <FanCardLandscape data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
                   )}
                 </div>
               </div>
@@ -700,6 +714,7 @@ export default function FanCardGenerator() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </EditableSection>
   );
 }

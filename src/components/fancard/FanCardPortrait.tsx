@@ -1,21 +1,24 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { FanCardData, SCHOOL_INFO, BG_PATHS } from './types';
+import { FanCardData, SCHOOL_INFO, BG_PATHS, DEFAULT_FAN_CARD_TEXT, FanCardTextContent } from './types';
 
 interface FanCardPortraitProps {
   data: FanCardData;
   qrDataUrl: string;
   bgDataUrl?: string;
   logoDataUrl?: string;
+  textContent?: Partial<FanCardTextContent>;
 }
 
 const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
-  function FanCardPortrait({ data, qrDataUrl, bgDataUrl, logoDataUrl }, ref) {
+  function FanCardPortrait({ data, qrDataUrl, bgDataUrl, logoDataUrl, textContent }, ref) {
     const school = SCHOOL_INFO[data.school];
     const bgPath = BG_PATHS[data.bgColor];
     const displayName = data.name.trim() || 'YOUR NAME';
     const hashtag = `#${displayName.toUpperCase().replace(/\s+/g, '')}`;
+    const text = { ...DEFAULT_FAN_CARD_TEXT, ...textContent };
+    const cheersText = data.school === 'gsc' ? text.gsc_cheers : text.stc_cheers;
 
     // Use data URL for background if available (for html2canvas download)
     const bgSrc = bgDataUrl || bgPath;
@@ -151,7 +154,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 textShadow: '0 2px 8px rgba(0, 0, 0, 0.55)',
               }}
             >
-              THE LEGENDARY
+              {text.event_overline}
             </div>
             <div
               style={{
@@ -163,7 +166,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 textShadow: '0 5px 14px rgba(0, 0, 0, 0.7)',
               }}
             >
-              Battle Of The
+              {text.title_line1}
             </div>
             <div
               style={{
@@ -175,7 +178,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                 textShadow: '0 5px 16px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 195, 0, 0.22)',
               }}
             >
-              Golds
+              {text.title_line2}
             </div>
             <div
               style={{
@@ -260,16 +263,21 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
             {/* Cheers Text */}
             <div
               style={{
+                display: 'inline-block',
                 color: '#ffffff',
-                fontSize: 21,
-                fontWeight: 700,
+                fontSize: 20,
+                fontWeight: 800,
                 textTransform: 'uppercase' as const,
-                letterSpacing: 1,
-                marginBottom: 8,
-                textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                letterSpacing: 1.3,
+                marginBottom: 10,
+                padding: '6px 18px',
+                borderTop: '1px solid rgba(255,195,0,0.35)',
+                borderBottom: '1px solid rgba(255,195,0,0.35)',
+                background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',
+                textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 0 12px rgba(255,195,0,0.22)',
               }}
             >
-              {school.cheers}
+              {cheersText}
             </div>
             {/* School Info + Batch */}
             <div
@@ -312,7 +320,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
               {/* Thomians' Media Branding */}
               <div style={{ display: 'flex', alignItems: 'center', userSelect: 'none', marginTop: 20 }}>
                 <img
-                  src="/fancard/thomians-media-wordmark.png"
+                  src={text.branding_image}
                   alt="Thomians' Media"
                   width={135}
                   height={11}
@@ -326,8 +334,8 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   backgroundColor: '#ffffff',
                   padding: 5,
                   borderRadius: 8,
-                  width: 58,
-                  height: 58,
+                  width: 72,
+                  height: 72,
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -338,12 +346,12 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   <img
                     src={qrDataUrl}
                     alt="QR Code"
-                    width={48}
-                    height={48}
+                    width={62}
+                    height={62}
                     style={{ display: 'block' }}
                   />
                 ) : (
-                  <div style={{ width: 48, height: 48, backgroundColor: '#eee' }} />
+                  <div style={{ width: 62, height: 62, backgroundColor: '#eee' }} />
                 )}
               </div>
             </div>
@@ -365,7 +373,7 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
                   letterSpacing: 1,
                 }}
               >
-                www.thomiansmedia.us
+                {text.website}
               </span>
             </div>
           </div>

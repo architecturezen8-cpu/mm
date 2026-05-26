@@ -1,5 +1,4 @@
 import { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getEnv } from '@/lib/cf-env';
 
@@ -11,10 +10,6 @@ const allowedEmails = envAllowedEmails.length > 0 ? envAllowedEmails : ADMIN_EMA
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: getEnv('GOOGLE_CLIENT_ID') || 'placeholder-google-client-id',
-      clientSecret: getEnv('GOOGLE_CLIENT_SECRET') || 'placeholder-google-client-secret',
-    }),
     CredentialsProvider({
       name: 'Email & Password',
       credentials: {
