@@ -237,24 +237,24 @@ const FanCardLandscape = forwardRef<HTMLDivElement, FanCardLandscapeProps>(
               </div>
               <div
                 style={{
-                  width: 250,
-                  minHeight: 34,
+                  width: 315,
                   boxSizing: 'border-box',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   textAlign: 'center',
+                  whiteSpace: 'nowrap' as const,
                   color: '#ffffff',
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 800,
                   textTransform: 'uppercase' as const,
-                  letterSpacing: 1.2,
-                  lineHeight: 1.25,
+                  letterSpacing: 0.75,
+                  lineHeight: 1,
                   marginBottom: 13,
-                  padding: '4px 12px',
-                  borderLeft: '2px solid rgba(255,195,0,0.7)',
-                  borderRight: '2px solid rgba(255,195,0,0.25)',
-                  background: 'linear-gradient(90deg, rgba(255,195,0,0.14), rgba(255,195,0,0.03), transparent)',
+                  padding: '4px 12px 5px',
+                  borderTop: '1px solid rgba(255,195,0,0.45)',
+                  borderBottom: '1px solid rgba(255,195,0,0.45)',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,195,0,0.12), transparent)',
                   textShadow: '0 2px 8px rgba(0,0,0,0.55), 0 0 12px rgba(255,195,0,0.2)',
                 }}
               >
