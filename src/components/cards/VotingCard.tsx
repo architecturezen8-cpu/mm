@@ -27,7 +27,7 @@ interface VotingCardProps {
 }
 
 /* ─── Phase enum ─── */
-type Phase = 'voting' | 'closed' | 'disconnected';
+type Phase = 'loading' | 'voting' | 'closed' | 'disconnected';
 
 /* ─── API response shape ─── */
 interface VoteResultsResponse {
@@ -86,7 +86,7 @@ function getOptionEntries(pollKey: PollKey): OptionEntry[] {
 export default function VotingCard({ community, matchInfo, innings1, innings2, onVote }: VotingCardProps) {
   /* ─── State ─── */
   const [liveCommunity, setLiveCommunity] = useState<CommunityData>(community);
-  const [votingEnabled, setVotingEnabled] = useState<boolean>(true);
+  const [votingEnabled, setVotingEnabled] = useState<boolean>(false);
   const [dbDisconnected, setDbDisconnected] = useState<boolean>(false);
   // D1 is the only database for voting (no Turso/Supabase)
   const [votedPolls, setVotedPolls] = useState<Record<string, string>>({});
@@ -118,13 +118,14 @@ export default function VotingCard({ community, matchInfo, innings1, innings2, o
 
   /* ─── Determine phase ─── */
   const phase: Phase = useMemo(() => {
+    if (!isLoaded) return 'loading';
     // D1 disconnected → special "disconnected" phase (zero DB calls)
     if (dbDisconnected) return 'disconnected';
-    // Voting OFF → closed (shows results if any, otherwise locked)
+    // Voting OFF → closed (shows results if any, otherwise premium await card)
     if (!votingEnabled) return 'closed';
     // Voting ON → interactive
     return 'voting';
-  }, [dbDisconnected, votingEnabled]);
+  }, [isLoaded, dbDisconnected, votingEnabled]);
 
   /* ─── Has any votes been cast? ─── */
   const hasVotes = (normalizedCommunity.totalVotes ?? 0) > 0;
@@ -382,7 +383,19 @@ export default function VotingCard({ community, matchInfo, innings1, innings2, o
 
         {/* ─── PHASE BANNER ─── */}
         <AnimatePresence mode="wait">
-          {/* D1 Disconnected: Stunning Coming Soon display */}
+          {phase === 'loading' && (
+            <motion.div
+              key="loading-banner"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative overflow-hidden rounded-lg border border-lux-border bg-lux-surface/40 p-4 text-center"
+            >
+              <span className="text-[10px] uppercase tracking-[3px] text-text-muted">Loading voting status…</span>
+            </motion.div>
+          )}
+
+          {/* D1 Disconnected: Premium Coming Soon display */}
           {phase === 'disconnected' && (
             <motion.div
               key="disconnected-banner"
@@ -420,7 +433,19 @@ export default function VotingCard({ community, matchInfo, innings1, innings2, o
             </motion.div>
           )}
 
-          {phase === 'closed' && (
+          {phase === 'closed' && !hasVotes && (
+            <motion.div
+              key="closed-await-card"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25 }}
+            >
+              <VotingComingSoon variant="voting" />
+            </motion.div>
+          )}
+
+          {phase === 'closed' && hasVotes && (
             <motion.div
               key="closed-banner"
               initial={{ opacity: 0, y: -8 }}
@@ -468,7 +493,7 @@ export default function VotingCard({ community, matchInfo, innings1, innings2, o
         </AnimatePresence>
 
         {/* ─── POLLS (hidden when D1 disconnected — zero DB calls) ─── */}
-        {phase !== 'disconnected' && (
+        {phase !== 'loading' && phase !== 'disconnected' && !(phase === 'closed' && !hasVotes) && (
         <div className="space-y-3">
           {POLL_KEYS.map((pollKey, idx) => {
             const pollData = getPollData(pollKey);
@@ -701,6 +726,14 @@ export default function VotingCard({ community, matchInfo, innings1, innings2, o
 
 /* ─── Phase Badge ─── */
 function PhaseBadge({ phase }: { phase: Phase }) {
+  if (phase === 'loading') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-lux-border bg-lux-surface text-[8px] sm:text-[9px] uppercase tracking-wider text-text-muted">
+        Loading
+      </span>
+    );
+  }
+
   if (phase === 'disconnected') {
     return (
       <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[#FFC300]/20 bg-[#FFC300]/5 text-[8px] sm:text-[9px] uppercase tracking-wider text-[#FFC300]/80">

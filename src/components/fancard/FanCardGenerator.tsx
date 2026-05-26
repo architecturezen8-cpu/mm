@@ -148,6 +148,7 @@ export default function FanCardGenerator() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [imageShareStatus, setImageShareStatus] = useState<'idle' | 'generating' | 'shared' | 'downloaded' | 'failed'>('idle');
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [showPhotoControls, setShowPhotoControls] = useState(false);
   const [downloadScale, setDownloadScale] = useState<1 | 2 | 3>(2);
@@ -257,6 +258,7 @@ export default function FanCardGenerator() {
     setCardData({ ...DEFAULT_FAN_CARD, cardId: createFanCardId() });
     setDownloadSuccess(false);
     setShareSuccess(false);
+    setImageShareStatus('idle');
     setShowPhotoControls(false);
   }, []);
 
@@ -368,6 +370,7 @@ export default function FanCardGenerator() {
 
     let imgs: HTMLImageElement[] = [];
     let origSrcs: string[] = [];
+    setImageShareStatus('generating');
     setIsDownloading(true);
     try {
       const [bgDataUrl, logoDataUrl] = await Promise.all([
@@ -406,15 +409,20 @@ export default function FanCardGenerator() {
           text: 'Check out my Battle of the Golds fan card',
           files: [file],
         });
+        setImageShareStatus('shared');
       } else {
         const link = document.createElement('a');
         link.download = file.name;
         link.href = dataUrl;
         link.click();
+        setImageShareStatus('downloaded');
       }
       saveToHistory(cardData);
+      setTimeout(() => setImageShareStatus('idle'), 3000);
     } catch (err) {
       console.error('Share image failed:', err);
+      setImageShareStatus('failed');
+      setTimeout(() => setImageShareStatus('idle'), 3500);
     } finally {
       imgs.forEach((img, i) => {
         if (origSrcs[i]) img.src = origSrcs[i];
@@ -985,7 +993,15 @@ export default function FanCardGenerator() {
               className="w-full h-10 sm:h-11 border border-lux-border text-text-muted hover:text-gold hover:border-gold/30 disabled:opacity-40 transition-all duration-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
             >
               <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-1" />
-              Share Image / Save
+              {imageShareStatus === 'generating'
+                ? 'Generating Image...'
+                : imageShareStatus === 'shared'
+                  ? 'Image Shared!'
+                  : imageShareStatus === 'downloaded'
+                    ? 'Image Saved!'
+                    : imageShareStatus === 'failed'
+                      ? 'Share Failed — Try Download'
+                      : 'Share Image / Save'}
             </button>
           </motion.div>
 
@@ -1012,23 +1028,39 @@ export default function FanCardGenerator() {
               >
                 <div
                   className="origin-top-left"
-                  onPointerDown={startPhotoDrag}
-                  onPointerMove={movePhotoDrag}
-                  onPointerUp={endPhotoDrag}
-                  onPointerCancel={endPhotoDrag}
                   style={{
                     width: cardData.orientation === 'portrait' ? 440 : 720,
                     height: cardData.orientation === 'portrait' ? 690 : 440,
                     transform: `scale(${previewScale})`,
                     transformOrigin: 'top left',
-                    cursor: cardData.photoUrl ? 'grab' : 'default',
-                    touchAction: 'none',
+                    position: 'relative',
                   }}
                 >
                   {cardData.orientation === 'portrait' ? (
                     <FanCardPortrait data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
                   ) : (
                     <FanCardLandscape data={cardData} qrDataUrl={qrDataUrl} textContent={fanCardText} />
+                  )}
+                  {cardData.photoUrl && (
+                    <div
+                      aria-label="Drag uploaded photo"
+                      title="Drag photo"
+                      onPointerDown={startPhotoDrag}
+                      onPointerMove={movePhotoDrag}
+                      onPointerUp={endPhotoDrag}
+                      onPointerCancel={endPhotoDrag}
+                      style={{
+                        position: 'absolute',
+                        left: cardData.orientation === 'portrait' ? 82.5 : 30,
+                        top: cardData.orientation === 'portrait' ? 168 : 65,
+                        width: cardData.orientation === 'portrait' ? 275 : 310,
+                        height: cardData.orientation === 'portrait' ? 275 : 310,
+                        zIndex: 20,
+                        cursor: 'grab',
+                        touchAction: 'none',
+                        background: 'transparent',
+                      }}
+                    />
                   )}
                 </div>
               </div>

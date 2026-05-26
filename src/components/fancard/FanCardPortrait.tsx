@@ -23,9 +23,9 @@ const FanCardPortrait = forwardRef<HTMLDivElement, FanCardPortraitProps>(
     const stickerText = STICKER_BADGES[data.sticker]?.text || '';
     const titleTweaks = {
       classic: { line1: 1, line2: 1, spacing: 1 },
-      luxury: { line1: 0.95, line2: 1.08, spacing: 1.12 },
-      sport: { line1: 1.05, line2: 1.08, spacing: 0.82 },
-      minimal: { line1: 0.9, line2: 0.92, spacing: 1.25 },
+      luxury: { line1: 0.9, line2: 1.18, spacing: 1.28 },
+      sport: { line1: 1.16, line2: 1.22, spacing: 0.62 },
+      minimal: { line1: 0.76, line2: 0.82, spacing: 1.55 },
     }[data.textStyle] || { line1: 1, line2: 1, spacing: 1 };
 
     // Use data URL for background if available (for html2canvas download)

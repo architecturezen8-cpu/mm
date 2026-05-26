@@ -346,8 +346,9 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
   const [results, setResults] = useState<VoteResults>({ stc: 0, gsc: 0, total: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [votingEnabled, setVotingEnabled] = useState(true);
+  const [votingEnabled, setVotingEnabled] = useState(false);
   const [dbDisconnected, setDbDisconnected] = useState(false);
+  const [resultsLoaded, setResultsLoaded] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   // D1 is the only database for voting (no Turso/Supabase)
   const [leaderboards, setLeaderboards] = useState<Record<string, LeaderboardEntry[]>>({
@@ -465,6 +466,8 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
     } catch {
       setResults({ stc: 0, gsc: 0, total: 0 });
       setLeaderboards({ topScorer: [], topWicketTaker: [], playerOfMatch: [] });
+    } finally {
+      setResultsLoaded(true);
     }
   }, [stcPlayers, dbDisconnected]);
 
@@ -625,31 +628,24 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
             <span className="icon"><PremiumIcon name="target" className="w-3.5 h-3.5 text-gold" /></span> Match Predictions
           </h2>
 
-          {/* ── D1 Disconnected: Stunning Coming Soon display ── */}
-          {dbDisconnected && (
+          {!resultsLoaded && (
+            <div className="text-center py-8 border border-lux-border bg-lux-surface/30">
+              <span className="text-[10px] uppercase tracking-[3px] text-text-muted">Loading prediction status…</span>
+            </div>
+          )}
+
+          {/* ── D1 Disconnected: Premium Coming Soon display ── */}
+          {resultsLoaded && dbDisconnected && (
             <VotingComingSoon variant="predictions" />
           )}
 
           {/* ── Voting OFF + No Votes ── */}
-          {!dbDisconnected && !votingEnabled && !hasSubmitted && !hasAnyVotes && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-10"
-            >
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[#E63946]/20 bg-[#E63946]/5 mb-4">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#E63946]/60" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0110 0v4" />
-                </svg>
-              </div>
-              <p className="text-text-secondary text-sm font-medium">Voting is Closed</p>
-              <p className="text-text-muted text-xs mt-1">No predictions were submitted</p>
-            </motion.div>
+          {resultsLoaded && !dbDisconnected && !votingEnabled && !hasSubmitted && !hasAnyVotes && (
+            <VotingComingSoon variant="predictions" />
           )}
 
           {/* ── Voting OFF + Has Votes (Read-Only with full results) ── */}
-          {!dbDisconnected && !votingEnabled && !hasSubmitted && hasAnyVotes && (
+          {resultsLoaded && !dbDisconnected && !votingEnabled && !hasSubmitted && hasAnyVotes && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -736,7 +732,7 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
           )}
 
           {/* ── Voting OFF + Already Submitted (Show closed banner + results) ── */}
-          {!dbDisconnected && !votingEnabled && hasSubmitted && (
+          {resultsLoaded && !dbDisconnected && !votingEnabled && hasSubmitted && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -829,7 +825,7 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
           )}
 
           {/* ── Interactive Prediction Form ── */}
-          {!dbDisconnected && votingEnabled && !hasSubmitted && (
+          {resultsLoaded && !dbDisconnected && votingEnabled && !hasSubmitted && (
             <div className="space-y-6">
               {/* ── Who Will Win? ── */}
               <motion.div
@@ -1059,7 +1055,7 @@ export default function PredictionsTab({ matchInfo, innings1, innings2 }: Predic
           )}
 
           {/* ── Submitted Confirmation ── */}
-          {hasSubmitted && (
+          {resultsLoaded && hasSubmitted && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
