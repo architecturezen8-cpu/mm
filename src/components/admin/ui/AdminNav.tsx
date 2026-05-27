@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FileText, Image, Settings, Home, ChevronRight } from 'lucide-react';
+import { FileText, Image, Settings, Home, ChevronRight, BarChart3 } from 'lucide-react';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: Home },
   { href: '/admin/dashboard/pages', label: 'Pages', icon: FileText },
   { href: '/admin/dashboard/media', label: 'Media Library', icon: Image },
+  { href: '/admin/dashboard/analysis', label: 'Analysis', icon: BarChart3 },
   { href: '/admin/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
